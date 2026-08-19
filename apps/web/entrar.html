@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<!-- §3 princípio 4 / §8 item 1: zoom por pinça SEMPRE permitido.
+     Nunca adicionar maximum-scale nem user-scalable=no. Regra de lint. -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar — KmZero</title>
+<meta name="description" content="Entre na sua conta do KmZero com e-mail e senha.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#062E38" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B1117" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="estilos/tokens.css">
+<link rel="stylesheet" href="estilos/material.css">
+<link rel="stylesheet" href="estilos/pagina.css">
+<link rel="stylesheet" href="estilos/conta.css">
+<script>
+  /* Aplica o tema salvo antes da primeira pintura, para não piscar. */
+  try {
+    var t = localStorage.getItem("kmzero:tema");
+    if (t === "claro" || t === "escuro") document.documentElement.dataset.tema = t;
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-envelope" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 7.5l8.5 6 8.5-6"/></symbol>
+  <symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="4.5" y="10" width="15" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-olho" viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-olho-corte" viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/><path d="M4 20L20 4"/></symbol>
+  <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 9v4M12 16.5v.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></symbol>
+  <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-voltar" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-lua" viewBox="0 0 24 24"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3a8.5 8.5 0 1 0 11.5 11.5z"/></symbol>
+  <symbol id="i-trofeu" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 5H5v2a3 3 0 0 0 3 3M16 5h3v2a3 3 0 0 1-3 3M9 20h6M12 13v7"/></symbol>
+</svg>
+
+<a class="pular-para-conteudo" href="#conteudo">Pular para o formulário</a>
+
+<header class="cabecalho md-app-bar">
+  <div class="cabecalho__interno faixa">
+    <a class="marca md-estado" href="index.html">KmZero</a>
+
+    <nav class="nav" aria-label="Principal">
+      <ul class="nav__lista" role="list">
+        <li><a class="md-botao md-botao--text md-estado nav__item" href="index.html#resultados">Provas</a></li>
+        <li><a class="md-botao md-botao--text md-estado nav__item" href="index.html#organizador">Organizadores</a></li>
+      </ul>
+    </nav>
+
+    <div class="cabecalho__acoes">
+      <button type="button" id="alternar-tema" class="md-icon-botao md-estado" hidden
+              aria-pressed="false">
+        <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-lua"/></svg>
+        <span class="oculto-visual" id="rotulo-tema">Ativar modo escuro</span>
+      </button>
+      <a class="md-botao md-botao--tonal md-estado" href="criar-conta.html">Criar conta</a>
+    </div>
+  </div>
+</header>
+
+<main id="conteudo" class="conta">
+<div class="faixa conta__coluna">
+
+  <a class="conta__voltar md-botao md-botao--text md-estado" href="index.html">
+    <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-voltar"/></svg>
+    Voltar para as provas
+  </a>
+
+  <!-- ═══ BANNERS DE CHEGADA ════════════════════════════════════════
+       Quem cai aqui vindo de outro lugar precisa saber por quê. Cada
+       banner responde às três perguntas de docs/03 §7.3: o que
+       aconteceu, por quê, e o que fazer agora — que aqui é sempre o
+       formulário logo abaixo.
+
+       Em produção quem decide qual banner aparece é o servidor (ou o
+       redirecionamento que trouxe a pessoa até aqui); o js/conta.js faz
+       o mesmo lendo o motivo da query string.                        -->
+  <p class="md-banner md-banner--success" id="aviso-senha-alterada" hidden>
+    <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-check"/></svg>
+    <span>
+      <strong class="conta__banner-titulo">Senha alterada</strong>
+      Pronto. Entre com a senha nova aí embaixo.
+    </span>
+  </p>
+
+  <p class="md-banner md-banner--success" id="aviso-conta-criada" hidden>
+    <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-check"/></svg>
+    <span>
+      <strong class="conta__banner-titulo">Conta criada</strong>
+      Agora é só entrar com o e-mail e a senha que você acabou de
+      cadastrar.
+    </span>
+  </p>
+
+  <p class="md-banner md-banner--warning" id="aviso-sessao" hidden>
+    <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-relogio"/></svg>
+    <span>
+      <strong class="conta__banner-titulo">Sua sessão terminou</strong>
+      Faz tempo desde a última vez. Entre de novo — seu histórico
+      continua inteiro do outro lado.
+    </span>
+  </p>
+
+  <!-- ═══ CARTÃO: ENTRAR ══════════════════════════════════════════ -->
+  <div class="conta__cartao md-card md-card--outlined">
+
+    <div>
+      <span class="conta__selo" aria-hidden="true">
+        <svg class="icone" focusable="false"><use href="#i-cadeado"/></svg>
+      </span>
+      <h1 class="conta__titulo md-headline-small">Entrar no KmZero</h1>
+      <p class="conta__linha-fina md-body-medium">
+        Use o e-mail e a senha da sua conta.
+      </p>
+    </div>
+
+    <p class="md-banner md-banner--info" id="nota-organizador" hidden>
+      <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-trofeu"/></svg>
+      <span>
+        <strong class="conta__banner-titulo">Você organiza uma prova</strong>
+        A porta é a mesma. Entre com sua conta e o console do organizador
+        aparece assim que sua organização for cadastrada.
+      </span>
+    </p>
+
+    <!-- Erro do envio: e-mail ou senha que não conferem, conta bloqueada
+         por tentativas, rede caída. Preenchido pelo js/conta.js. -->
+    <p class="md-banner md-banner--error" id="erro-formulario" role="alert" hidden>
+      <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-alerta"/></svg>
+      <span>
+        <strong class="conta__banner-titulo" id="erro-formulario-titulo"></strong>
+        <span id="erro-formulario-texto"></span>
+      </span>
+    </p>
+
+    <!-- O form aponta para a API por POST. Se um dia a autenticação for
+         pelo Worker, ele já funciona sem JavaScript. Com Firebase Auth
+         quem faz o login é o SDK no navegador, e aí o JavaScript passa a
+         ser obrigatório nesta tela — o <noscript> abaixo avisa em vez de
+         deixar um formulário que não vai a lugar nenhum. -->
+    <form class="conta__forma" id="forma-entrar" method="post" action="/api/conta/entrar" novalidate>
+      <input type="hidden" name="voltar_para" id="campo-voltar" value="">
+
+      <div>
+        <div class="md-campo md-campo--com-icone" id="caixa-email">
+          <svg class="icone md-campo__icone" aria-hidden="true" focusable="false"><use href="#i-envelope"/></svg>
+          <input type="email" id="campo-email" name="email" class="md-campo__entrada"
+                 placeholder="voce@exemplo.com.br"
+                 autocomplete="username" inputmode="email"
+                 autocapitalize="off" spellcheck="false"
+                 required aria-describedby="ajuda-email">
+          <label class="md-campo__rotulo" for="campo-email">Seu e-mail</label>
+        </div>
+
+        <p class="conta__erro-campo" id="erro-email" role="alert" hidden>
+          <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-alerta"/></svg>
+          <span id="erro-email-texto"></span>
+        </p>
+
+        <p class="md-campo__suporte" id="ajuda-email">
+          O mesmo e-mail que você usou para criar a conta.
+        </p>
+      </div>
+
+      <div>
+        <!-- Mostrar a senha não é enfeite: é o que permite conferir o
+             que foi digitado antes de errar três vezes e ser bloqueado.
+             O botão fica dentro do campo, com 48px de alvo (§5.2). -->
+        <div class="md-campo md-campo--com-icone md-campo--com-acao" id="caixa-senha">
+          <svg class="icone md-campo__icone" aria-hidden="true" focusable="false"><use href="#i-cadeado"/></svg>
+          <input type="password" id="campo-senha" name="senha" class="md-campo__entrada"
+                 placeholder="sua senha"
+                 autocomplete="current-password"
+                 required aria-describedby="ajuda-senha">
+          <label class="md-campo__rotulo" for="campo-senha">Sua senha</label>
+          <button type="button" class="md-icon-botao md-estado md-campo__acao"
+                  id="mostrar-senha" aria-pressed="false" aria-controls="campo-senha">
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-olho"/></svg>
+            <span class="oculto-visual" id="rotulo-mostrar-senha">Mostrar a senha</span>
+          </button>
+        </div>
+
+        <p class="conta__erro-campo" id="erro-senha" role="alert" hidden>
+          <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-alerta"/></svg>
+          <span id="erro-senha-texto"></span>
+        </p>
+
+        <!-- Caps Lock ligado é a causa mais comum de senha "errada" que
+             está certa. Avisar custa uma linha e evita o bloqueio. -->
+        <p class="conta__aviso-campo" id="aviso-capslock" role="status" hidden>
+          <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-alerta"/></svg>
+          <span>O Caps Lock está ligado. A senha diferencia maiúscula de minúscula.</span>
+        </p>
+
+        <!-- data-persistente: este apoio NÃO some quando o campo dá
+             erro. É justo quando a senha não confere que o "esqueci"
+             mais precisa estar na tela. -->
+        <p class="md-campo__suporte" id="ajuda-senha" data-persistente>
+          <a href="recuperar-senha.html">Esqueci minha senha</a>
+        </p>
+      </div>
+
+      <button type="submit" class="md-botao md-botao--filled md-botao--grande md-estado conta__acao" id="botao-entrar">
+        Entrar
+      </button>
+    </form>
+
+    <noscript>
+      <p class="md-banner md-banner--warning">
+        <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-alerta"/></svg>
+        <span>
+          <strong class="conta__banner-titulo">Entrar precisa de JavaScript</strong>
+          A busca por provas funciona sem ele — só esta tela precisa.
+          Ative o JavaScript e recarregue a página.
+        </span>
+      </p>
+    </noscript>
+
+    <div class="conta__rodape-cartao">
+      <p>
+        <strong>Ainda não tem conta?</strong>
+        <a href="criar-conta.html">Criar minha conta</a> — leva menos de
+        um minuto e não pede documento nenhum.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══ ATALHOS DE DEMONSTRAÇÃO ══════════════════════════════════
+       Somem junto com os dados fictícios da vitrine, quando a
+       autenticação de verdade entrar.                               -->
+  <div class="conta__demo">
+    <p><strong>Demonstração.</strong> Ainda não há autenticação ligada:
+    nenhuma conta existe e nenhuma sessão é aberta. Para ver o erro de
+    senha, entre com qualquer e-mail e a senha
+    <code>errada</code>. Estes atalhos abrem os outros estados:</p>
+    <ul>
+      <li><a class="md-chip-atalho md-estado" href="entrar.html?aviso=sessao">Sessão terminada</a></li>
+      <li><a class="md-chip-atalho md-estado" href="entrar.html?aviso=senha-alterada">Senha alterada</a></li>
+      <li><a class="md-chip-atalho md-estado" href="entrar.html?aviso=conta-criada">Conta criada</a></li>
+    </ul>
+  </div>
+
+</div>
+</main>
+
+<footer class="rodape">
+  <div class="faixa rodape__interno">
+    <div class="rodape__bloco">
+      <p class="rodape__assinatura">KmZero — de onde você partiu.</p>
+      <p class="rodape__texto">Inscrição, resultado e histórico de pedestrianismo.</p>
+    </div>
+
+    <nav class="rodape__bloco" aria-label="Rodapé">
+      <h2 class="rodape__titulo md-label-large">Navegar</h2>
+      <ul role="list">
+        <li><a href="index.html#resultados">Provas</a></li>
+        <li><a href="index.html#organizador">Organizadores</a></li>
+        <li><a href="criar-conta.html">Criar conta</a></li>
+      </ul>
+    </nav>
+
+    <div class="rodape__bloco">
+      <h2 class="rodape__titulo md-label-large">Aviso</h2>
+      <p class="rodape__texto">
+        O KmZero é um projeto particular. Não é serviço oficial nem representa
+        órgão público, entidade, federação ou confederação — nem ninguém além
+        do próprio responsável.
+      </p>
+      <p class="rodape__texto rodape__texto--fraco">
+        A política de privacidade e os termos de uso serão publicados antes de
+        qualquer cadastro.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/tema.js" defer></script>
+<script src="js/conta.js" defer></script>
+</body>
+</html>

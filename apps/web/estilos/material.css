@@ -143,6 +143,18 @@
   padding-inline: var(--esp-4);
 }
 
+/* Indisponível: nunca por opacidade — o público desta interface enxerga
+   mal, e texto apagado é texto ilegível. O botão troca de papel de cor
+   (7.39:1 no claro) e a razão fica escrita ao lado dele: botão
+   desligado sem explicação é a falha cara de §6.1. */
+.md-botao:disabled {
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface-variant);
+  box-shadow: none;
+  cursor: default;
+}
+.md-botao:disabled::before { display: none; }
+
 /* Botão de ícone: 48×48, redondo, sem rótulo visível — o nome
    acessível vem de um <span> fora da tela. */
 .md-icon-botao {
@@ -382,6 +394,12 @@
   font-size: var(--txt-2xs);
 }
 .md-banner--warning { background: var(--md-warning-container); color: var(--md-warning); }
+.md-banner--error   { background: var(--md-error-container);   color: var(--md-error); }
+.md-banner--success { background: var(--md-success-container); color: var(--md-success); }
+.md-banner--info    { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+/* O ícone do banner nunca é o único portador do significado: cada um
+   entra acompanhado de título e texto (§4.6 regra 1). */
+.md-banner .icone { margin-block-start: 0.1em; }
 
 /* ═══ DIVISOR ═══════════════════════════════════════════════════ */
 .md-divisor {

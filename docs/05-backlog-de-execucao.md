@@ -165,7 +165,7 @@ Esta é a pergunta mais importante do documento, e a resposta honesta é: **pouc
 | `C5` | Provisionar D1 + KV + R2 + bindings | `C1` | 1 | Bindings respondendo em dev e produção |
 | `E1` | Spec de `regras_json` + validação | `A1` | 2 | Schema + validador; regras do CSP expressas nele |
 | `E6` ⚠️ | Parser tolerante de resultados | `A2` | 5 | Lê as 3 amostras; linha ruim vira pendência, não aborta |
-| `G1` | Amazon SES: domínio, DKIM/SPF, saída do sandbox | `B2` | 2 | E-mail entregue na caixa de entrada, não no spam |
+| `G1` | Amazon SES: domínio, DKIM/SPF, saída do sandbox | `B2` | 2 | E-mail entregue na caixa de entrada, não no spam. É para o aviso de janela (`I2`) — o e-mail de conta e de senha sai pelo Firebase |
 
 > `A7` é a tarefa de maior valor de informação do projeto inteiro. É onde H4 e H5 são testadas, e H5 decide se o produto compete por valor ou por preço.
 
@@ -215,7 +215,7 @@ Esta é a pergunta mais importante do documento, e a resposta honesta é: **pouc
 | `D5` | Schema: Mapa de Datas | `D1` | 1 | `evento_externo`, `densidade_snapshot` |
 | `D6` | Schema: engajamento + ETL + auditoria | `D1` | 2 | `conquista`, `push_subscription`, `preferencia_notificacao`, `importacao`, `matching_pendente`, `aceite_termo` |
 | `D7` | Seed do CSP | `D1` `A1` | 2 | 40ª edição com etapas, categorias e percursos reais |
-| `G2` 🔴 | Magic link + sessão em cookie assinado | `G1` `D1` `C5` | 5 | Login sem senha ponta a ponta; rate limit ativo |
+| `G2` 🔴 | Firebase Auth: e-mail e senha, ponta a ponta | `D1` `C5` | 4 | Criar conta, entrar, sair e trocar a senha esquecida. Telas prontas em `apps/web` desde já |
 | `H2` | `EventoCard` + os 6 estados de inscrição | `H1` | 3 | Componente com os 6 estados renderizando |
 
 ---
@@ -354,7 +354,7 @@ graph LR
     C1["C1 · 1d<br/>Cloudflare"] --> C2["C2 · 2d<br/>Scaffold"]
     C2 --> C6["C6 · 2d<br/>Migrações"]
     C6 --> D1["D1 · 3d<br/>Schema base"]
-    D1 --> G2["G2 · 5d<br/>Magic link"]
+    D1 --> G2["G2 · 4d<br/>Firebase Auth"]
     G2 --> G3["G3 · 3d<br/>Permissões"]
     G3 --> L1["L1 · 8d<br/>ConstrutorEvento"]
     L1 --> L2["L2 · 5d<br/>Inscrição"]

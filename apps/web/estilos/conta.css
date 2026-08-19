@@ -1,0 +1,337 @@
+/* ═══════════════════════════════════════════════════════════════════
+   KmZero — telas de conta: entrar, criar conta, recuperar e redefinir
+   senha.
+
+   Autenticação por e-mail e senha (docs/02 §7). O que o desenho destas
+   telas assume, e o CSS sustenta:
+
+   • senha sempre com botão de mostrar — conferir o que se digitou é o
+     que evita o terceiro erro e o bloqueio (§4 princípio 4)
+   • regra de senha visível ANTES de digitar, marcando sozinha quando
+     é cumprida — regra escondida até o erro é armadilha
+   • erro no lugar do texto de ajuda, nunca empurrando o botão para
+     baixo: layout que salta faz o dedo errar o alvo (§7.2)
+
+   Os componentes vêm de material.css; as cores e medidas, de
+   tokens.css. REGRA, como em pagina.css: nenhum hex aqui.
+   Referência: docs/03-design-system.md
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Coluna única, estreita ────────────────────────────────────────
+   Um formulário curto por tela. A medida é menor que a --medida-
+   leitura de propósito: campo largo demais em telefone faz o dedo
+   viajar, e aqui a pessoa está com pressa (§5.3).                   */
+.conta {
+  padding-block: var(--esp-8) var(--esp-16);
+}
+.conta__coluna {
+  max-inline-size: 34rem;
+}
+
+.conta__voltar {
+  margin-inline-start: calc(-1 * var(--esp-4));
+  margin-block-end: var(--esp-4);
+}
+.conta__voltar .icone { inline-size: 1.2rem; block-size: 1.2rem; }
+
+/* ─── Cartão ────────────────────────────────────────────────────── */
+.conta__cartao {
+  padding: var(--esp-8) var(--esp-6);
+  gap: var(--esp-5);
+}
+@media (min-width: 30em) {
+  .conta__cartao { padding: var(--esp-8); }
+}
+
+.conta__titulo { margin-block-end: var(--esp-2); }
+.conta__linha-fina {
+  color: var(--md-on-surface-variant);
+  max-inline-size: var(--medida-leitura);
+}
+
+/* Selo do topo do cartão: o ícone diz de que tela se trata antes de
+   qualquer leitura. Decorativo — o título carrega o significado. */
+.conta__selo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--alvo-min);
+  block-size: var(--alvo-min);
+  border-radius: var(--md-shape-full);
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  margin-block-end: var(--esp-4);
+}
+.conta__selo--sucesso { background: var(--md-success-container); color: var(--md-success); }
+.conta__selo .icone { inline-size: 1.6rem; block-size: 1.6rem; }
+
+/* ─── Formulário ────────────────────────────────────────────────── */
+.conta__forma {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+}
+/* O botão ocupa a linha inteira: alvo grande, sem mira (§5.2). */
+.conta__acao { inline-size: 100%; }
+
+/* Erro de campo. Vem com ícone e texto — cor nunca é o único
+   portador (§4.6 regra 1). */
+.conta__erro-campo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-2);
+  margin-block-start: var(--esp-2);
+  padding-inline: var(--esp-4);
+  color: var(--md-error);
+  font-size: var(--txt-2xs);
+  font-weight: var(--peso-medio);
+}
+.conta__erro-campo .icone { inline-size: 1.1rem; block-size: 1.1rem; margin-block-start: 0.15em; }
+
+/* Campo com erro: a linha de ativação do M3 vira vermelha. */
+.md-campo[data-erro] { box-shadow: inset 0 -3px 0 0 var(--md-error); }
+
+/* Aviso que não é erro — o Caps Lock ligado, por exemplo. Mesma forma
+   do erro, cor de alerta: ninguém errou nada ainda. */
+.conta__aviso-campo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-2);
+  margin-block-start: var(--esp-2);
+  padding-inline: var(--esp-4);
+  color: var(--md-warning);
+  font-size: var(--txt-2xs);
+  font-weight: var(--peso-medio);
+}
+.conta__aviso-campo .icone { inline-size: 1.1rem; block-size: 1.1rem; margin-block-start: 0.15em; }
+
+/* ─── Botão dentro do campo (mostrar a senha) ───────────────────────
+   O campo abre espaço no fim para um alvo de 48px. Sem isso o botão
+   encosta na borda e divide pixel com o texto.                      */
+.md-campo--com-acao { padding-inline-end: var(--esp-1); }
+.md-campo__acao { flex: none; }
+
+/* ─── Requisitos da senha ───────────────────────────────────────────
+   Ficam visíveis antes de a pessoa digitar e cada um se marca sozinho
+   quando é cumprido. Cumprido muda cor, ícone E peso — cor nunca é o
+   único portador (§4.6 regra 1). O ícone troca via <use> no script. */
+.conta__requisitos {
+  display: grid;
+  gap: var(--esp-2);
+  margin-block-start: var(--esp-3);
+  padding-inline: var(--esp-4);
+  list-style: none;
+}
+.conta__requisitos li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-2);
+  color: var(--md-on-surface-variant);
+  font-size: var(--txt-2xs);
+  transition: color var(--motion-rapido) var(--motion-curva);
+}
+.conta__requisitos .icone {
+  inline-size: 1.1rem;
+  block-size: 1.1rem;
+  margin-block-start: 0.15em;
+  flex: none;
+}
+.conta__requisitos li[data-ok] {
+  color: var(--md-success);
+  font-weight: var(--peso-semi);
+}
+
+/* ─── Banner de resultado (erro / aviso) ────────────────────────────
+   Cada um responde às três perguntas de §7.3: o que aconteceu, por
+   que, o que fazer agora. O "o que fazer" costuma ser o próprio
+   formulário que está logo abaixo.                                  */
+.conta .md-banner { margin-block-end: var(--esp-6); }
+.conta__banner-titulo {
+  display: block;
+  font-weight: var(--peso-semi);
+  margin-block-end: var(--esp-1);
+}
+
+/* ─── Passos do "verifique seu e-mail" ──────────────────────────── */
+.conta__passos {
+  counter-reset: passo;
+  display: grid;
+  gap: var(--esp-4);
+  margin-block: var(--esp-2) 0;
+  padding: 0;
+  list-style: none;
+}
+.conta__passos li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-3);
+  font-size: var(--txt-xs);
+}
+.conta__passos li::before {
+  counter-increment: passo;
+  content: counter(passo);
+  flex: none;
+  display: grid;
+  place-items: center;
+  inline-size: 1.9rem;
+  block-size: 1.9rem;
+  border-radius: var(--md-shape-full);
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  font-size: var(--txt-2xs);
+  font-weight: var(--peso-forte);
+  font-variant-numeric: tabular-nums;
+}
+
+/* O e-mail para onde o link foi. Fica grande porque é a informação
+   que a pessoa precisa conferir antes de procurar na caixa. */
+.conta__email {
+  display: block;
+  overflow-wrap: anywhere;
+  font-weight: var(--peso-semi);
+  color: var(--md-on-surface);
+}
+
+/* ─── Dobra "não chegou?" ───────────────────────────────────────── */
+.conta__detalhes {
+  border-radius: var(--md-shape-sm);
+  box-shadow: inset 0 0 0 1px var(--md-outline-variant);
+}
+.conta__resumo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-block-size: var(--alvo-min);
+  padding-inline: var(--esp-4);
+  border-radius: var(--md-shape-sm);
+  font-size: var(--txt-xs);
+  font-weight: var(--peso-semi);
+  cursor: pointer;
+  list-style: none;
+}
+.conta__resumo::-webkit-details-marker { display: none; }
+.conta__resumo::after {
+  content: "";
+  margin-inline-start: auto;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-inline-end: 2px solid var(--md-on-surface-variant);
+  border-block-end: 2px solid var(--md-on-surface-variant);
+  transform: translateY(-2px) rotate(45deg);
+}
+.conta__detalhes[open] .conta__resumo::after { transform: translateY(2px) rotate(-135deg); }
+.conta__painel {
+  padding: 0 var(--esp-4) var(--esp-4);
+  color: var(--md-on-surface-variant);
+  font-size: var(--txt-xs);
+}
+.conta__painel ul {
+  display: grid;
+  gap: var(--esp-2);
+  margin: 0;
+  padding-inline-start: var(--esp-5);
+}
+
+/* ─── Notas de rodapé do cartão ─────────────────────────────────── */
+.conta__nota {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-2);
+  color: var(--md-on-surface-variant);
+  font-size: var(--txt-2xs);
+}
+.conta__nota .icone {
+  inline-size: 1.2rem;
+  block-size: 1.2rem;
+  margin-block-start: 0.1em;
+  color: var(--md-primary);
+}
+
+.conta__rodape-cartao {
+  margin-block-start: var(--esp-2);
+  padding-block-start: var(--esp-5);
+  border-block-start: 1px solid var(--md-outline-variant);
+  color: var(--md-on-surface-variant);
+  font-size: var(--txt-xs);
+}
+.conta__rodape-cartao p + p { margin-block-start: var(--esp-2); }
+
+/* ─── Tela "entrando" ───────────────────────────────────────────────
+   §7.2: skeleton com a forma do conteúdo, nunca spinner centralizado.
+   A altura é preservada para a tela não saltar quando o estado troca.
+   A animação morre sozinha em prefers-reduced-motion (tokens.css).  */
+.conta__estado { min-block-size: 12rem; }
+
+/* Dentro do cartão de estado o espaçamento é do próprio bloco: os
+   elementos entram e saem conforme o desfecho, então quem separa é o
+   grid, não a margem de cada peça. */
+.conta__estado > div {
+  display: grid;
+  gap: var(--esp-4);
+}
+/* O selo é o único que não ocupa a linha: ele é um ícone, não um
+   bloco. Todo o resto — banner, formulário, lista — estica. */
+.conta__estado .conta__selo { justify-self: start; }
+.conta__estado .conta__selo,
+.conta__estado .conta__titulo { margin-block-end: 0; }
+
+.conta__skeleton {
+  inline-size: 100%;
+  display: grid;
+  gap: var(--esp-3);
+}
+.conta__skeleton span {
+  block-size: 1rem;
+  border-radius: var(--md-shape-xs);
+  background: var(--md-surface-container-high);
+  animation: conta-pulso 1.4s var(--motion-curva) infinite;
+}
+.conta__skeleton span:nth-child(2) { inline-size: 80%; animation-delay: 0.15s; }
+.conta__skeleton span:nth-child(3) { inline-size: 55%; animation-delay: 0.3s; }
+
+@keyframes conta-pulso {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+
+/* ─── Atalhos de demonstração ───────────────────────────────────────
+   Some junto com os dados fictícios, quando G2 existir de verdade. */
+.conta__demo {
+  margin-block-start: var(--esp-6);
+  padding: var(--esp-4);
+  border-radius: var(--md-shape-sm);
+  box-shadow: inset 0 0 0 1px var(--md-outline-variant);
+  font-size: var(--txt-2xs);
+  color: var(--md-on-surface-variant);
+}
+.conta__demo ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+  margin-block-start: var(--esp-3);
+  padding: 0;
+  list-style: none;
+}
+
+/* Bloco de ação no fim de um cartão de estado. */
+.conta__acoes { inline-size: 100%; margin-block-start: var(--esp-2); }
+
+/* Trechos de código nos avisos de demonstração — nome de tarefa, valor
+   a digitar. Some junto com os blocos de demonstração. */
+.conta__demo code {
+  padding: 0.1em 0.4em;
+  border-radius: var(--md-shape-xs);
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface);
+  font-size: 0.95em;
+}
+
+/* ─── Foco de anúncio ───────────────────────────────────────────────
+   Título e banner recebem foco por script quando o estado da tela
+   muda, para o leitor de tela anunciar o que aconteceu. O anel de foco
+   fica de fora só nesses dois: ele significa "você pode agir aqui", e
+   num título não há ação nenhuma — desenhado em volta de um texto, o
+   anel ainda parece um campo editável. Todo elemento interativo
+   continua com foco visível, sem exceção. */
+.conta__estado h1[tabindex]:focus,
+.conta .md-banner[tabindex]:focus { outline: none; }
