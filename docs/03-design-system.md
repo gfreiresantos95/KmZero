@@ -695,7 +695,9 @@ Conforme §9.5 da descoberta — três formas, funções distintas, sem improvis
 
 **Assinatura:** *KmZero — de onde você partiu.*
 
-**No Caminho A (companion não-oficial):** rodapé permanente e inequívoco — *"KmZero não é um serviço oficial da Prefeitura de Santos."* Sem brasão, sem logo institucional, sem imitação de identidade de governo.
+**No Caminho A (companion não-oficial):** rodapé permanente e inequívoco — *"O KmZero é um projeto particular. Não é serviço oficial nem representa órgão público, entidade, federação ou confederação — nem ninguém além do próprio responsável."* Sem brasão, sem logo institucional, sem imitação de identidade de governo.
+
+O aviso é mais amplo do que "não é da prefeitura" de propósito: o produto vai citar campeonatos, federações e clubes por nome, e a ausência de vínculo precisa cobrir todos eles, não só o município de origem. O texto completo fica no README e na `LICENSE` do repositório.
 
 ---
 

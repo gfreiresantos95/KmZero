@@ -122,11 +122,34 @@ Quem for mexer no código começa por [`apps/web/README.md`](apps/web/README.md)
 
 ## Avisos
 
-O KmZero **não é um serviço oficial** da Prefeitura de Santos, de nenhuma
-prefeitura, federação ou confederação.
+**O KmZero é um projeto particular.** Ele não representa nada nem ninguém além do
+responsável por este repositório.
+
+Não é serviço oficial e não tem qualquer vínculo, patrocínio, endosso ou
+representação de:
+
+- órgão público de qualquer esfera — municipal, estadual ou federal — incluindo
+  prefeituras e secretarias de esporte;
+- entidade não governamental, associação, clube, assessoria esportiva ou empresa;
+- federação ou confederação esportiva, estadual ou nacional.
+
+Menções a campeonatos, provas, cidades ou entidades na documentação e nas telas de
+demonstração são **referências a informação pública**, feitas para análise e
+exemplo. Não implicam autorização, parceria ou aprovação de ninguém.
+
+Os eventos exibidos hoje na vitrine são **fictícios**: nomes, datas, preços e
+condições foram inventados para demonstrar a interface.
 
 A política de privacidade e os termos de uso serão publicados **antes** de qualquer
-cadastro. A licença deste repositório ainda não foi definida.
+cadastro.
+
+## Licença
+
+Proprietária — todos os direitos reservados. Ver [`LICENSE`](LICENSE).
+
+Este repositório **não é código aberto**. Ele pode estar visível publicamente, mas
+visibilidade não é licença: usar, copiar, modificar ou distribuir o conteúdo exige
+autorização prévia e por escrito.
 
 ---
 

@@ -1,0 +1,88 @@
+LICENÇA PROPRIETÁRIA — TODOS OS DIREITOS RESERVADOS
+
+Copyright © 2026 Gabriel Freire. Todos os direitos reservados.
+
+Projeto: KmZero
+Repositório: https://github.com/gfreiresantos95/KmZero
+
+
+1. NATUREZA DESTA LICENÇA
+
+Este repositório NÃO é software livre nem código aberto. O código-fonte,
+a documentação, os textos, o design, os tokens de design e todo o demais
+conteúdo aqui contido são obra proprietária do titular do copyright acima
+e estão protegidos pela Lei nº 9.610/1998 (Direitos Autorais) e pela Lei
+nº 9.609/1998 (Programa de Computador).
+
+O repositório pode estar visível publicamente. Visibilidade não é licença:
+poder ler o código não concede nenhum direito sobre ele.
+
+
+2. O QUE NÃO É PERMITIDO SEM AUTORIZAÇÃO PRÉVIA E POR ESCRITO
+
+Sem autorização prévia, expressa e por escrito do titular, é vedado a
+qualquer pessoa física ou jurídica:
+
+  a) usar, executar ou hospedar este software, no todo ou em parte, para
+     qualquer finalidade, comercial ou não;
+  b) copiar, reproduzir ou armazenar o conteúdo, salvo o cache técnico
+     automático do próprio navegador ou da plataforma de hospedagem;
+  c) modificar, adaptar, traduzir ou criar obra derivada;
+  d) distribuir, publicar, sublicenciar, alugar, emprestar ou vender;
+  e) fazer engenharia reversa de partes não publicadas;
+  f) usar o conteúdo, no todo ou em parte, para treinar, ajustar ou
+     avaliar modelos de aprendizado de máquina.
+
+
+3. O QUE É PERMITIDO
+
+  a) ler o código e a documentação para fins de estudo pessoal e
+     avaliação;
+  b) citar trechos curtos, com atribuição clara e link para este
+     repositório, conforme o art. 46 da Lei nº 9.610/1998;
+  c) abrir issues e relatar problemas.
+
+Contribuições de código só serão aceitas mediante acordo específico e por
+escrito com o titular. Ao enviar uma contribuição sem esse acordo, o
+autor não adquire direito algum sobre o projeto.
+
+
+4. MARCAS E IDENTIDADE
+
+"KmZero", "km0" e a identidade visual do projeto não são licenciados por
+este documento. Nenhum direito de marca é concedido, e o registro no INPI
+está pendente. É vedado usar o nome ou a identidade de forma que sugira
+associação, patrocínio ou endosso do projeto a terceiros.
+
+
+5. COMPONENTES DE TERCEIROS
+
+Dependências e bibliotecas de terceiros, quando existirem, permanecem sob
+suas próprias licenças, que prevalecem sobre este documento no que lhes
+diz respeito.
+
+
+6. AUSÊNCIA DE GARANTIA E DE RESPONSABILIDADE
+
+O CONTEÚDO É FORNECIDO "COMO ESTÁ", SEM GARANTIA DE QUALQUER NATUREZA,
+EXPRESSA OU IMPLÍCITA, INCLUINDO MAS NÃO SE LIMITANDO A GARANTIAS DE
+COMERCIABILIDADE, ADEQUAÇÃO A UMA FINALIDADE ESPECÍFICA E NÃO VIOLAÇÃO.
+
+EM NENHUMA HIPÓTESE O TITULAR RESPONDERÁ POR QUALQUER RECLAMAÇÃO, DANO OU
+OUTRA RESPONSABILIDADE DECORRENTE DO CONTEÚDO OU DE SEU USO.
+
+Os dados de eventos exibidos nas páginas de demonstração são fictícios e
+não representam provas, organizadores, datas, preços ou vagas reais.
+
+
+7. INDEPENDÊNCIA DO PROJETO
+
+O KmZero é um projeto particular. Não é serviço oficial nem representa
+qualquer órgão público, entidade não governamental, federação,
+confederação, associação ou empresa. Ver a seção "Avisos" do README.
+
+
+8. CONTATO
+
+Pedidos de autorização e dúvidas sobre licenciamento devem ser dirigidos
+ao titular pelo repositório acima.
