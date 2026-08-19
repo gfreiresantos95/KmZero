@@ -64,8 +64,9 @@ dia da prova — número, categoria, horário, local — fica em cache e abre of
 
 **Arquitetura de custo fixo zero.**
 O produto roda indefinidamente sem receita, e por isso não precisa monetizar antes
-de ter valor. Nenhum componente cobra por usuário; nenhum banco dorme por
-inatividade e acorda no pior momento do ano.
+de ter valor. Nenhum componente cobra por usuário na escala prevista — a
+autenticação é gratuita até 50 mil pessoas ativas por mês —, e nenhum banco dorme
+por inatividade para acordar no pior momento do ano.
 
 ---
 
@@ -77,6 +78,7 @@ Este repositório está no começo. Sendo honesto sobre o que existe:
 |---|---|
 | Documentação de produto, arquitetura e design | ✅ Completa |
 | Vitrine pública — busca, filtros e cards | 🟡 No ar, com dados de demonstração |
+| Conta: entrar, criar e recuperar senha | 🟡 Telas desenhadas e navegáveis; a autenticação ainda não está ligada |
 | Validação com corredores e organizadores | ⬜ Próximo passo |
 | Banco, contas, inscrição e pagamento | ⬜ Planejado |
 

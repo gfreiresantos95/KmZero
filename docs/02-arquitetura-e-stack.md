@@ -849,24 +849,50 @@ Cada regra é uma função pura `(atleta, etapa, historico) → { elegivel, moti
 
 ---
 
-## 7. Autenticação sem custo por usuário
+## 7. Autenticação
 
-**Magic link por e-mail. Sem senha, sem provedor de terceiros.**
+**E-mail e senha, com Firebase Auth.**
 
 | Componente | Implementação |
 |---|---|
-| Solicitação | E-mail → token de uso único no KV, TTL 15 min |
-| Envio | Amazon SES |
-| Validação | Worker verifica token → sessão em cookie `HttpOnly`, `Secure`, `SameSite=Lax` |
-| Sessão | JWT assinado (HS256), 90 dias, chave em Workers Secret |
-| Rate limiting | Cloudflare Rate Limiting nativo: 5 solicitações/e-mail/hora |
-| Custo | **R$ 0,00** — nenhum provedor cobra por usuário ativo |
+| Entrar | `signInWithEmailAndPassword` no navegador |
+| Criar conta | `createUserWithEmailAndPassword` + verificação de e-mail |
+| Recuperação | `sendPasswordResetEmail` → link de uso único, 1 hora |
+| Sessão | Gerida pelo SDK, com refresh token no navegador |
+| E-mails transacionais da conta | Do próprio Firebase, com template em português e remetente do domínio |
+| Rate limiting e proteção contra bot | Limites nativos do Firebase Auth |
+| Custo | **R$ 0,00 até 50 mil usuários ativos por mês** |
 
-Rejeitados por cobrarem por assento: Auth0, Clerk, Supabase Auth, Firebase Auth.
+**Decisão revista.** A versão anterior desta seção especificava magic link
+por e-mail e rejeitava o Firebase Auth "por cobrar por assento". A rejeição
+não se sustentava: o nível gratuito do Firebase Auth cobre 50 mil usuários
+ativos por mês, e só depois disso passa a cobrar por MAU — ordens de
+grandeza acima da escala prevista aqui. E-mail e senha é o que o público
+espera encontrar, e essa expectativa vale mais do que a economia de um
+passo no fluxo.
 
-**Por que sem senha é melhor aqui, não só mais barato:** o sistema atual usa CPF + senha com recuperação apenas por CPF. Para um público 60+ que acessa 5 vezes por ano, senha esquecida é o modo de falha dominante. Magic link elimina a categoria inteira do problema.
+**O que a mudança custa, e que fica registrado:**
 
-**CAPTCHA:** substituído por Cloudflare Turnstile (gratuito e invisível na maioria dos casos) apenas no fluxo público. **Nunca em sessão autenticada** — o problema da §2.4.3 da descoberta.
+| Custo | Consequência |
+|---|---|
+| Senha esquecida volta a existir | Era o modo de falha dominante do sistema atual — CPF + senha, recuperação só por CPF. A resposta é o "esqueci minha senha" ser de primeira classe: link visível ao lado do campo, sem CAPTCHA, e trocar a senha em duas telas |
+| Entrar passa a exigir JavaScript | O login roda no navegador, via SDK. As páginas públicas — busca, filtros, listagem — continuam funcionando sem JS (§8 item 17 do design system); só as telas de conta não |
+| Dependência de terceiro | Se o Firebase mudar preço ou política, migrar significa reimplementar a autenticação. O código isola isso num adaptador de seis métodos (`apps/web/js/conta.js`), para a troca não atravessar a interface |
+| Dado pessoal fora do Brasil | Contas ficam em servidor do Google. Precisa estar declarado na política de privacidade (`B7`), e o CPF continua valendo a regra do §11: só como hash, nunca em claro, e nunca no provedor de autenticação |
+
+**Senha:** mínimo de 8 caracteres e bloqueio de sequências óbvias. **Sem
+regra de composição** — exigir símbolo e maiúscula empurra todo mundo para
+`Senha@123`, que é pior do que quatro palavras seguidas. Campo de senha
+sempre com botão de mostrar: para um público que vai até 80+, conferir o
+que se digitou é o que evita o bloqueio por tentativas.
+
+**Anti-enumeração:** senha errada e e-mail inexistente devolvem a mesma
+mensagem, e a confirmação do "esqueci minha senha" nunca revela se a conta
+existe.
+
+**CAPTCHA:** Cloudflare Turnstile continua disponível para o fluxo público
+se os limites nativos do Firebase não bastarem. **Nunca em sessão
+autenticada** — o problema da §2.4.3 da descoberta.
 
 ---
 

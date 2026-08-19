@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<!-- §3 princípio 4 / §8 item 1: zoom por pinça SEMPRE permitido. -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Esqueci minha senha — KmZero</title>
+<meta name="description" content="Receba um e-mail para criar uma senha nova no KmZero.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#062E38" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B1117" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="estilos/tokens.css">
+<link rel="stylesheet" href="estilos/material.css">
+<link rel="stylesheet" href="estilos/pagina.css">
+<link rel="stylesheet" href="estilos/conta.css">
+<script>
+  try {
+    var t = localStorage.getItem("kmzero:tema");
+    if (t === "claro" || t === "escuro") document.documentElement.dataset.tema = t;
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-envelope" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 7.5l8.5 6 8.5-6"/></symbol>
+  <symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l2 2M14 9l2 2"/></symbol>
+  <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 9v4M12 16.5v.5"/></symbol>
+  <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="4.5" y="10" width="15" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-voltar" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-lua" viewBox="0 0 24 24"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3a8.5 8.5 0 1 0 11.5 11.5z"/></symbol>
+</svg>
+
+<a class="pular-para-conteudo" href="#conteudo">Pular para o formulário</a>
+
+<header class="cabecalho md-app-bar">
+  <div class="cabecalho__interno faixa">
+    <a class="marca md-estado" href="index.html">KmZero</a>
+
+    <nav class="nav" aria-label="Principal">
+      <ul class="nav__lista" role="list">
+        <li><a class="md-botao md-botao--text md-estado nav__item" href="index.html#resultados">Provas</a></li>
+        <li><a class="md-botao md-botao--text md-estado nav__item" href="index.html#organizador">Organizadores</a></li>
+      </ul>
+    </nav>
+
+    <div class="cabecalho__acoes">
+      <button type="button" id="alternar-tema" class="md-icon-botao md-estado" hidden
+              aria-pressed="false">
+        <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-lua"/></svg>
+        <span class="oculto-visual" id="rotulo-tema">Ativar modo escuro</span>
+      </button>
+      <a class="md-botao md-botao--tonal md-estado" href="entrar.html">Entrar</a>
+    </div>
+  </div>
+</header>
+
+<main id="conteudo" class="conta">
+<div class="faixa conta__coluna">
+
+  <a class="conta__voltar md-botao md-botao--text md-estado" href="entrar.html">
+    <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-voltar"/></svg>
+    Voltar para o entrar
+  </a>
+
+  <div class="conta__cartao md-card md-card--outlined">
+    <div class="conta__estado">
+
+      <!-- ═══ ESTADO 1: PEDIR O E-MAIL ═════════════════════════════ -->
+      <div id="estado-formulario">
+        <span class="conta__selo" aria-hidden="true">
+          <svg class="icone" focusable="false"><use href="#i-chave"/></svg>
+        </span>
+        <h1 class="conta__titulo md-headline-small">Esqueceu a senha?</h1>
+        <p class="conta__linha-fina md-body-medium">
+          Acontece — e tem conserto. Digite seu e-mail que a gente manda
+          um link para você criar uma senha nova.
+        </p>
+
+        <p class="md-banner md-banner--error" id="erro-formulario" role="alert" hidden>
+          <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-alerta"/></svg>
+          <span>
+            <strong class="conta__banner-titulo" id="erro-formulario-titulo"></strong>
+            <span id="erro-formulario-texto"></span>
+          </span>
+        </p>
+
+        <form class="conta__forma" id="forma-recuperar" method="post" action="/api/conta/recuperar-senha" novalidate>
+          <div>
+            <div class="md-campo md-campo--com-icone" id="caixa-email">
+              <svg class="icone md-campo__icone" aria-hidden="true" focusable="false"><use href="#i-envelope"/></svg>
+              <input type="email" id="campo-email" name="email" class="md-campo__entrada"
+                     placeholder="voce@exemplo.com.br"
+                     autocomplete="username" inputmode="email"
+                     autocapitalize="off" spellcheck="false"
+                     required aria-describedby="ajuda-email">
+              <label class="md-campo__rotulo" for="campo-email">Seu e-mail</label>
+            </div>
+
+            <p class="conta__erro-campo" id="erro-email" role="alert" hidden>
+              <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-alerta"/></svg>
+              <span id="erro-email-texto"></span>
+            </p>
+
+            <p class="md-campo__suporte" id="ajuda-email">
+              O e-mail que você usou para criar a conta.
+            </p>
+          </div>
+
+          <button type="submit" class="md-botao md-botao--filled md-botao--grande md-estado conta__acao" id="botao-recuperar">
+            Enviar o link
+          </button>
+        </form>
+
+        <noscript>
+          <p class="md-banner md-banner--warning">
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-alerta"/></svg>
+            <span>
+              <strong class="conta__banner-titulo">Esta tela precisa de JavaScript</strong>
+              A busca por provas funciona sem ele. Ative o JavaScript e
+              recarregue a página.
+            </span>
+          </p>
+        </noscript>
+
+        <div class="conta__rodape-cartao">
+          <p>
+            Lembrou a senha? <a href="entrar.html">Voltar para o entrar</a>.
+          </p>
+        </div>
+      </div>
+
+      <!-- ═══ ESTADO 2: E-MAIL A CAMINHO ═══════════════════════════
+           A confirmação NÃO diz se a conta existe. Tela que responde
+           "esse e-mail não está cadastrado" entrega, de graça, uma lista
+           de quem tem conta aqui para quem estiver testando endereços. -->
+      <div id="estado-enviado" hidden>
+        <span class="conta__selo" aria-hidden="true">
+          <svg class="icone" focusable="false"><use href="#i-envelope"/></svg>
+        </span>
+        <h1 class="conta__titulo md-headline-small">Verifique seu e-mail.</h1>
+        <p class="conta__linha-fina md-body-medium">
+          Se existir uma conta com
+          <span class="conta__email" id="email-destino">esse endereço</span>
+          o link para criar a senha nova chega em instantes.
+        </p>
+
+        <ol class="conta__passos">
+          <li>Abra o e-mail do KmZero na sua caixa de entrada.</li>
+          <li>Toque em <strong>Criar senha nova</strong>.</li>
+          <li>Escolha a senha e pronto — você já entra com ela.</li>
+        </ol>
+
+        <p class="conta__nota">
+          <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-relogio"/></svg>
+          <span>O link vale <strong>1 hora</strong> e funciona
+          <strong>uma vez só</strong>. Enquanto você não criar a senha
+          nova, a antiga continua valendo.</span>
+        </p>
+
+        <details class="conta__detalhes">
+          <summary class="conta__resumo md-estado">E se o e-mail não chegar?</summary>
+          <div class="conta__painel">
+            <ul>
+              <li>Espere um minuto: quase sempre é só a fila do provedor.</li>
+              <li>Olhe no spam, no lixo eletrônico e nas abas Promoções e Social.</li>
+              <li>O remetente é <strong>contato@kmzero.com.br</strong>. Marcar
+                  como "não é spam" resolve para as próximas vezes.</li>
+              <li>Confira se o endereço está certo. Se não estiver,
+                  <a href="recuperar-senha.html">tente com outro e-mail</a>.</li>
+              <li>Talvez a conta seja de outro endereço — ou ainda não
+                  exista. <a href="criar-conta.html">Criar uma conta</a>
+                  leva menos de um minuto.</li>
+            </ul>
+          </div>
+        </details>
+
+        <form class="conta__forma" id="forma-reenviar" method="post" action="/api/conta/recuperar-senha">
+          <input type="hidden" name="email" id="campo-email-reenvio" value="">
+          <button type="submit" class="md-botao md-botao--outlined md-botao--grande md-estado conta__acao" id="botao-reenviar">
+            Enviar o link de novo
+          </button>
+          <p class="conta__nota" id="aviso-reenvio" role="status" hidden>
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-relogio"/></svg>
+            <span id="aviso-reenvio-texto"></span>
+          </p>
+        </form>
+
+        <div class="conta__rodape-cartao">
+          <p>
+            <a href="entrar.html">Voltar para o entrar</a>
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="conta__demo">
+    <p><strong>Demonstração.</strong> Nenhum e-mail sai daqui ainda. Este
+    atalho faz o papel do toque no link que chegaria na caixa:</p>
+    <ul>
+      <li><a class="md-chip-atalho md-estado" href="redefinir-senha.html?oobCode=demo-valido">Link válido</a></li>
+      <li><a class="md-chip-atalho md-estado" href="redefinir-senha.html?oobCode=demo-expirado">Link vencido</a></li>
+    </ul>
+  </div>
+
+</div>
+</main>
+
+<footer class="rodape">
+  <div class="faixa rodape__interno">
+    <div class="rodape__bloco">
+      <p class="rodape__assinatura">KmZero — de onde você partiu.</p>
+      <p class="rodape__texto">Inscrição, resultado e histórico de pedestrianismo.</p>
+    </div>
+
+    <nav class="rodape__bloco" aria-label="Rodapé">
+      <h2 class="rodape__titulo md-label-large">Navegar</h2>
+      <ul role="list">
+        <li><a href="index.html#resultados">Provas</a></li>
+        <li><a href="index.html#organizador">Organizadores</a></li>
+        <li><a href="entrar.html">Entrar</a></li>
+      </ul>
+    </nav>
+
+    <div class="rodape__bloco">
+      <h2 class="rodape__titulo md-label-large">Aviso</h2>
+      <p class="rodape__texto">
+        O KmZero é um projeto particular. Não é serviço oficial nem representa
+        órgão público, entidade, federação ou confederação — nem ninguém além
+        do próprio responsável.
+      </p>
+      <p class="rodape__texto rodape__texto--fraco">
+        A política de privacidade e os termos de uso serão publicados antes de
+        qualquer cadastro.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/tema.js" defer></script>
+<script src="js/conta.js" defer></script>
+</body>
+</html>

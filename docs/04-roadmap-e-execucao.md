@@ -148,7 +148,7 @@ A fase que entrega valor aos **dois lados sem exigir que nenhum deles migre nada
 | **Vitrine pública de eventos** — busca, filtros, `EventoCard` | Participante | Descoberta é o topo do funil e é conteúdo estático, ótimo para busca orgânica |
 | **Favoritar + alerta de abertura** | Participante | O gancho de retenção, e o pretexto para instalar o PWA |
 | **Página pública de resultados** por evento | Ambos | Tráfego orgânico: gente procura o próprio resultado |
-| **Conta única** (magic link) | Ambos | Uma conta que serve para correr e para organizar (`02` §3.2.1) |
+| **Conta única** (e-mail e senha) | Ambos | Uma conta que serve para correr e para organizar (`02` §3.2.1) |
 
 **Fora desta fase:** inscrição, pagamento, console do organizador, dashboard do atleta.
 
