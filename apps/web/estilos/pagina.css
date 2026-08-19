@@ -1,0 +1,620 @@
+/* ═══════════════════════════════════════════════════════════════════
+   KmZero — vitrine pública (página principal)
+
+   Layout da página. Os componentes vêm de material.css; as cores e as
+   medidas, de tokens.css. REGRA: nenhum hex aqui.
+   Referência: docs/03-design-system.md
+   ═══════════════════════════════════════════════════════════════════ */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+h1, h2, h3, p, ul, ol, figure, figcaption, fieldset { margin: 0; }
+fieldset { border: 0; padding: 0; min-inline-size: 0; }
+/* :where() zera a especificidade do seletor de atributo — sem isso
+   ul[role="list"] (0,1,1) venceria qualquer classe de componente
+   (0,1,0) e mataria as margens em silêncio. */
+:where(ul[role="list"], ol[role="list"]) { list-style: none; padding: 0; margin: 0; }
+img, svg { max-inline-size: 100%; }
+
+a { color: var(--cor-primaria-700); }
+
+.sprite { display: none; }
+
+/* O atributo hidden precisa vencer qualquer display declarado depois. */
+[hidden] { display: none !important; }
+
+.oculto-visual {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ─── TOKENS LOCAIS DE SUPERFÍCIE ESCURA ────────────────────────────
+   A faixa de busca e os cartazes precisam ser escuros nos DOIS modos.
+   Os tokens de marca invertem entre claro e escuro (primaria-900 é
+   escuro no claro e claro no escuro), então a inversão é declarada
+   aqui — faixa clara e saturada no modo escuro vibra (§4.3).        */
+:root {
+  --faixa-fundo:       var(--cor-primaria-900);
+  --faixa-texto:       var(--cor-texto-invertido);
+  --faixa-texto-suave: color-mix(in srgb, var(--cor-texto-invertido) 82%, var(--cor-primaria-900));
+  --cartaz-a:          var(--densidade-5);
+  --cartaz-b:          var(--densidade-3);
+  --cartaz-texto:      var(--cor-texto-invertido);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --faixa-fundo:       var(--cor-primaria-50);
+    --faixa-texto:       var(--cor-texto);
+    --faixa-texto-suave: var(--cor-texto-suave);
+    --cartaz-a:          var(--densidade-1);
+    --cartaz-b:          var(--densidade-2);
+    --cartaz-texto:      var(--cor-texto);
+  }
+}
+:root[data-tema="escuro"] {
+  --faixa-fundo:       var(--cor-primaria-50);
+  --faixa-texto:       var(--cor-texto);
+  --faixa-texto-suave: var(--cor-texto-suave);
+  --cartaz-a:          var(--densidade-1);
+  --cartaz-b:          var(--densidade-2);
+  --cartaz-texto:      var(--cor-texto);
+}
+
+/* ─── Ícones ────────────────────────────────────────────────────── */
+.icone {
+  inline-size: 1.4rem;
+  block-size: 1.4rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+/* ─── Pular para o conteúdo ─────────────────────────────────────── */
+.pular-para-conteudo {
+  position: absolute;
+  inset-inline-start: var(--esp-4);
+  inset-block-start: calc(-1 * var(--esp-16));
+  z-index: 10;
+  padding: var(--esp-3) var(--esp-4);
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  border-radius: var(--md-shape-sm);
+  font-weight: var(--peso-semi);
+  text-decoration: none;
+  transition: inset-block-start var(--motion-rapido) var(--motion-curva);
+}
+.pular-para-conteudo:focus { inset-block-start: var(--esp-4); }
+
+/* ─── Faixa: largura máxima de conteúdo ─────────────────────────── */
+.faixa {
+  inline-size: 100%;
+  max-inline-size: var(--largura-conteudo);
+  margin-inline: auto;
+  padding-inline: var(--esp-5);
+}
+
+/* ═══ APP BAR ═══════════════════════════════════════════════════ */
+/* Um espaçamento só entre todos os controles do topo: navegação, tema
+   e Entrar ficam com o mesmo intervalo. */
+.cabecalho__interno {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2);
+  padding-block: var(--esp-2);
+}
+
+/* Marca só em texto — sem símbolo (docs/03 §10: "KmZero" é a forma
+   escrita; o símbolo gráfico fica para o app e o favicon). */
+.marca {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--alvo-min);
+  padding-inline: var(--esp-2);
+  margin-inline-start: calc(-1 * var(--esp-2));
+  margin-inline-end: auto;
+  border-radius: var(--md-shape-sm);
+  color: var(--cor-primaria-700);
+  font-size: var(--txt-xl);
+  font-weight: var(--peso-extra);
+  letter-spacing: -0.03em;
+  text-decoration: none;
+}
+
+.nav__lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+/* Botão de texto do M3: o hover mostra o mesmo canto arredondado do
+   botão Entrar, porque os dois herdam --md-shape-full. */
+.nav__item {
+  color: var(--md-on-surface-variant);
+  font-weight: var(--peso-medio);
+}
+.cabecalho__acoes { display: flex; align-items: center; gap: var(--esp-2); }
+
+/* ═══ BUSCA ═════════════════════════════════════════════════════ */
+.busca {
+  padding-block: var(--esp-12);
+  background: var(--faixa-fundo);
+  color: var(--faixa-texto);
+}
+/* O título fica numa linha só; quem quebra é o subtítulo. */
+.busca__titulo { white-space: nowrap; }
+.busca__linha-fina {
+  max-inline-size: 46ch;
+  margin-block-start: var(--esp-3);
+  color: var(--faixa-texto-suave);
+}
+/* Abaixo de ~30em a frase não cabe em nenhuma medida legível: aí ela
+   volta a quebrar, em vez de encolher a fonte ou vazar a tela. */
+@media (max-width: 34em) {
+  .busca__titulo { white-space: normal; font-size: var(--txt-2xl); }
+}
+@media (min-width: 48em) {
+  .busca__titulo { font-size: var(--txt-4xl); }
+}
+
+/* Provas de valor logo abaixo da busca: o argumento de venda sem
+   ocupar uma seção inteira. */
+.beneficios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-3) var(--esp-6);
+  margin-block-start: var(--esp-12);
+}
+.beneficios li {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  color: var(--faixa-texto-suave);
+  font-size: var(--txt-2xs);
+}
+.beneficios .icone {
+  inline-size: 1.2rem;
+  block-size: 1.2rem;
+  color: var(--faixa-texto);
+}
+
+/* ═══ FILTROS ═══════════════════════════════════════════════════ */
+.filtros {
+  margin-block-start: var(--esp-6);
+  padding: var(--esp-5);
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  border-radius: var(--md-shape-md);
+  box-shadow: var(--md-elev-3);
+}
+.filtros__linha {
+  display: grid;
+  gap: var(--esp-4);
+  grid-template-columns: 1fr;
+}
+.filtros__linha + .filtros__linha {
+  margin-block-start: var(--esp-5);
+  padding-block-start: var(--esp-5);
+  border-block-start: 1px solid var(--md-outline-variant);
+}
+@media (min-width: 48em) {
+  .filtros__linha { grid-template-columns: 1fr 1fr; }
+  .filtros__linha--principal {
+    grid-template-columns: 2fr 1fr 1fr auto;
+    align-items: start;
+  }
+}
+.filtros__enviar { margin-block-start: var(--esp-1); }
+
+.grupo__legenda {
+  padding: 0;
+  margin-block-end: var(--esp-3);
+  color: var(--md-on-surface-variant);
+}
+.grupo__nota {
+  margin-block-end: var(--esp-2);
+  color: var(--cor-texto-fraco);
+  font-size: var(--txt-3xs);
+}
+.grupo__opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);              /* ≥ 8px entre alvos (§5.2) */
+}
+
+/* ─── Mais filtros ──────────────────────────────────────────────── */
+.mais-filtros {
+  margin-block-start: var(--esp-5);
+  padding-block-start: var(--esp-5);
+  border-block-start: 1px solid var(--md-outline-variant);
+}
+.mais-filtros__resumo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-block-size: var(--alvo-min);
+  padding-inline: var(--esp-4);
+  border-radius: var(--md-shape-full);
+  color: var(--md-on-primary-container);
+  font-size: var(--txt-2xs);
+  font-weight: var(--peso-semi);
+  cursor: pointer;
+  list-style: none;
+}
+.mais-filtros__resumo::-webkit-details-marker { display: none; }
+.mais-filtros__contagem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 1.5rem;
+  padding: 0 var(--esp-1);
+  border-radius: var(--md-shape-full);
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  font-size: var(--txt-3xs);
+  font-variant-numeric: tabular-nums;
+}
+.mais-filtros__painel {
+  display: grid;
+  gap: var(--esp-6);
+  margin-block-start: var(--esp-5);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 48em) {
+  .mais-filtros__painel { grid-template-columns: 1fr 1fr; }
+}
+
+/* ═══ SEÇÕES ════════════════════════════════════════════════════ */
+.secao { padding-block: var(--esp-12); }
+.secao--superficie {
+  background: var(--md-surface-container);
+  border-block: 1px solid var(--md-outline-variant);
+}
+.secao__linha-fina {
+  margin-block-start: var(--esp-3);
+  color: var(--md-on-surface-variant);
+}
+
+/* ─── Topo dos resultados ───────────────────────────────────────── */
+.md-banner { margin-block-end: var(--esp-12); }
+
+.resultados__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--esp-2) var(--esp-4);
+}
+
+/* Atalhos e ordenação dividem a linha. */
+.resultados__topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-4) var(--esp-5);
+  margin-block-start: var(--esp-6);
+}
+.resultados__contagem {
+  color: var(--md-on-surface-variant);
+  font-size: var(--txt-xs);
+}
+.resultados__contagem .num {
+  font-size: var(--txt-lg);
+  font-weight: var(--peso-forte);
+  color: var(--md-on-surface);
+}
+.campo--ordenar { min-inline-size: 15rem; }
+
+/* ─── Filtros ativos ────────────────────────────────────────────── */
+.ativos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2);
+  margin-block-start: var(--esp-5);
+}
+.ativos__titulo { color: var(--md-on-surface-variant); }
+.ativos__lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+
+/* ═══ EVENTOCARD ════════════════════════════════════════════════ */
+.eventos {
+  display: grid;
+  gap: var(--esp-5);
+  margin-block-start: var(--esp-6);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 48em) { .eventos { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 64em) { .eventos { grid-template-columns: repeat(3, 1fr); } }
+
+.evento[hidden] { display: none; }
+.evento__cartao { position: relative; block-size: 100%; }
+
+/* Cartaz: o lugar da arte do evento enquanto não existe imagem.
+   Proporção 16:9, como manda o mock da §6-B. */
+.evento__cartaz {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  aspect-ratio: 16 / 9;
+  padding: var(--esp-4);
+  background: linear-gradient(135deg, var(--cartaz-a), var(--cartaz-b));
+  color: var(--cartaz-texto);
+}
+.evento__cartaz[data-variante="2"] { background: linear-gradient(200deg, var(--cartaz-a), var(--cartaz-b)); }
+.evento__cartaz[data-variante="3"] { background: linear-gradient(70deg, var(--cartaz-b), var(--cartaz-a)); }
+.evento__cartaz[data-variante="4"] { background: linear-gradient(160deg, var(--cartaz-b), var(--cartaz-a)); }
+.evento__cartaz[data-variante="5"] { background: linear-gradient(110deg, var(--cartaz-a), var(--cartaz-b)); }
+
+/* O selo de data tem fundo próprio: assim o texto pequeno nunca fica
+   sobre o gradiente. */
+.evento__selo {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--esp-2) var(--esp-3);
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  border-radius: var(--md-shape-sm);
+  line-height: var(--lh-apertado);
+}
+.evento__selo-dia { font-size: var(--txt-lg); font-weight: var(--peso-forte); }
+.evento__selo-mes { font-size: var(--txt-2xs); color: var(--md-on-surface-variant); }
+
+/* Texto grande (≥24px, peso 700) — nível AA-large sobre o gradiente. */
+.evento__cartaz-dist {
+  font-size: var(--txt-xl);
+  font-weight: var(--peso-forte);
+  letter-spacing: -0.01em;
+}
+
+/* Favoritar: alvo de 48×48 no canto, acionável sem login (§6-B). */
+/* Favoritar é "amei", não "erro": rosa próprio (--cor-favorito), fora
+   das semânticas de status. Contrastes medidos em docs/03 §4.2 e §4.3. */
+.favorito {
+  position: absolute;
+  inset-block-start: var(--esp-3);
+  inset-inline-end: var(--esp-3);
+  z-index: 1;
+  background: var(--md-surface);
+  color: var(--cor-favorito);
+  box-shadow: var(--md-elev-1);
+}
+.favorito[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--cor-favorito) 12%, var(--md-surface));
+}
+.favorito[aria-pressed="true"] .icone { fill: currentColor; }
+
+.evento__corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+  flex: 1;
+  padding: var(--esp-5);
+}
+/* Etiqueta de tipo: rótulo, não chip — não é acionável, então não
+   carrega alvo de toque de 48px. */
+.evento__tipo {
+  align-self: flex-start;
+  padding: var(--esp-1) var(--esp-3);
+  border-radius: var(--md-shape-xs);
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface-variant);
+}
+
+/* Duas linhas reservadas sempre: título curto e título longo ocupam a
+   mesma altura, e todos os cards ficam com o mesmo desenho interno. */
+.evento__nome {
+  min-block-size: calc(var(--txt-lg) * var(--lh-subtitulo) * 2);
+}
+.evento__nome a { color: var(--md-on-surface); text-decoration: none; }
+.evento__nome a:hover { text-decoration: underline; }
+/* O cartão inteiro é clicável pelo nome — o coração fica acima na
+   pilha e continua com clique próprio. */
+.evento__nome a::after { content: ""; position: absolute; inset: 0; }
+
+.evento__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  font-size: var(--txt-2xs);
+  color: var(--md-on-surface-variant);
+}
+.evento__meta li { display: flex; align-items: flex-start; gap: var(--esp-2); }
+.evento__meta .icone {
+  inline-size: 1.1rem;
+  block-size: 1.1rem;
+  margin-block-start: 2px;
+  color: var(--cor-texto-fraco);
+}
+
+.evento__rodape {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--esp-3);
+  margin-block-start: auto;
+  padding-block-start: var(--esp-3);
+  border-block-start: 1px solid var(--md-outline-variant);
+}
+/* Preço sempre visível na listagem, inclusive "Gratuito" (§6-B), e
+   sempre numa linha só: "Gratuito", "R$ 60", "R$ 90 – 120". */
+.evento__preco {
+  font-size: var(--txt-lg);
+  font-weight: var(--peso-forte);
+  line-height: var(--lh-subtitulo);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* Informação complementar da inscrição — "lote único", "as 5 etapas".
+   NUNCA número de vagas: é premissa do projeto não expor quantas
+   sobraram nem quantas existem. Vazia, o campo continua ocupando a
+   linha, para os cards não mudarem de altura entre si. */
+.evento__nota {
+  min-block-size: calc(var(--txt-2xs) * var(--lh-subtitulo));
+  font-size: var(--txt-2xs);
+  color: var(--md-on-surface-variant);
+  text-align: end;
+}
+
+/* ─── Os 6 estados de inscrição (§6-B) ──────────────────────────────
+   Cada um com cor E ícone E texto. Nunca só cor.                    */
+.estado {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-block-size: var(--alvo-min);
+  padding: var(--esp-2) var(--esp-4);
+  border-radius: var(--md-shape-sm);
+  font-size: var(--txt-2xs);
+  font-weight: var(--peso-semi);
+}
+.estado .icone { inline-size: 1.2rem; block-size: 1.2rem; }
+.estado--abertas    { background: var(--md-success-container); color: var(--md-success); }
+.estado--ultimas    { background: var(--md-warning-container); color: var(--md-warning); }
+.estado--esgotado   { background: var(--md-error-container);   color: var(--md-error); }
+.estado--encerradas { background: var(--md-error-container);   color: var(--md-error); }
+.estado--em-breve   { background: var(--md-surface-container-high); color: var(--md-on-surface-variant); }
+.estado--realizado  { background: var(--md-secondary-container);    color: var(--md-on-secondary-container); }
+
+/* ═══ ESTADO VAZIO (§7.1) ═══════════════════════════════════════ */
+.vazio {
+  margin-block-start: var(--esp-6);
+  padding: var(--esp-8) var(--esp-6);
+  background: var(--md-surface-container);
+  border-radius: var(--md-shape-md);
+}
+.vazio__texto {
+  margin-block-start: var(--esp-3);
+  color: var(--md-on-surface-variant);
+}
+.vazio .md-botao { margin-block-start: var(--esp-5); }
+
+/* ═══ ATALHOS ═══════════════════════════════════════════════════ */
+.atalhos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+  flex: 1 1 30rem;
+}
+
+/* ═══ O QUE FICA DEPOIS (faixa enxuta, não seção inteira) ═══════ */
+.depois {
+  display: grid;
+  gap: var(--esp-6);
+  margin-block-start: var(--esp-8);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 48em) { .depois { grid-template-columns: repeat(3, 1fr); } }
+
+.depois li {
+  display: flex;
+  gap: var(--esp-3);
+  align-items: flex-start;
+}
+.depois .icone {
+  color: var(--md-on-primary-container);
+  margin-block-start: 2px;
+}
+.depois strong { display: block; font-weight: var(--peso-semi); }
+.depois span {
+  display: block;
+  margin-block-start: var(--esp-1);
+  color: var(--md-on-surface-variant);
+  font-size: var(--txt-2xs);
+}
+
+/* ═══ CHAMADA DO ORGANIZADOR ════════════════════════════════════ */
+.organizador {
+  display: grid;
+  gap: var(--esp-8);
+  padding: var(--esp-8);
+  border-radius: var(--md-shape-md);
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 64em) {
+  .organizador { grid-template-columns: 1.5fr auto; align-items: center; }
+}
+.organizador__texto {
+  max-inline-size: var(--medida-leitura);
+  margin-block-start: var(--esp-4);
+}
+.organizador__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+  margin-block-start: var(--esp-6);
+  font-size: var(--txt-2xs);
+}
+.organizador__lista li { display: flex; gap: var(--esp-3); align-items: flex-start; }
+.organizador__lista .icone {
+  inline-size: 1.2rem;
+  block-size: 1.2rem;
+  margin-block-start: 2px;
+}
+/* Os dois botões com a mesma largura, um sob o outro — alinhados
+   pelas duas bordas, não só pela esquerda. */
+.organizador__acoes {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--esp-3);
+}
+.organizador .md-botao--filled {
+  background: var(--md-on-secondary-container);
+  color: var(--md-secondary-container);
+}
+.organizador .md-botao--outlined {
+  color: var(--md-on-secondary-container);
+  box-shadow: inset 0 0 0 1px var(--md-on-secondary-container);
+}
+
+/* ═══ RODAPÉ ════════════════════════════════════════════════════ */
+.rodape {
+  padding-block: var(--esp-12);
+  background: var(--md-surface);
+  border-block-start: 1px solid var(--md-outline-variant);
+}
+.rodape__interno {
+  display: grid;
+  gap: var(--esp-8);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 48em) {
+  .rodape__interno { grid-template-columns: 2fr 1fr 2fr; }
+}
+.rodape__assinatura {
+  font-size: var(--txt-lg);
+  font-weight: var(--peso-forte);
+  color: var(--cor-primaria-700);
+}
+.rodape__titulo { color: var(--md-on-surface); }
+.rodape__texto {
+  margin-block-start: var(--esp-2);
+  font-size: var(--txt-2xs);
+  color: var(--md-on-surface-variant);
+}
+.rodape__texto--fraco { color: var(--cor-texto-fraco); }
+.rodape__bloco ul { margin: var(--esp-2) 0 0; }
+.rodape__bloco a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--alvo-min);
+  font-size: var(--txt-2xs);
+}

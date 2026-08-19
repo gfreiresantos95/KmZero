@@ -1,0 +1,75 @@
+# ─── Dependências ───────────────────────────────────────────────────
+node_modules/
+.pnpm-store/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+
+# ─── Build ──────────────────────────────────────────────────────────
+dist/
+build/
+.output/
+.astro/
+.vite/
+*.tsbuildinfo
+
+# ─── Cloudflare (docs/02 §2) ────────────────────────────────────────
+# Estado local do Wrangler e o D1 de desenvolvimento: efêmeros e
+# específicos da máquina. As migrações versionadas ficam em
+# packages/schema/ e NÃO entram aqui.
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+wrangler.toml.bak
+
+# ─── Segredos ───────────────────────────────────────────────────────
+# Nada de credencial de gateway, chave VAPID ou token de SES no repo.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+!packages/**/*.key.ts
+
+# ─── Teste e cobertura ──────────────────────────────────────────────
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+.vitest/
+
+# ─── Cache de ferramenta ────────────────────────────────────────────
+.cache/
+.temp/
+.tmp/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+.eslintcache
+.stylelintcache
+
+# ─── Dados brutos de importação ─────────────────────────────────────
+# Planilha de resultado de prova tem nome, idade e às vezes documento
+# de milhares de pessoas (docs/02 §11 — LGPD). O bruto vive no R2, não
+# no git. Amostras anonimizadas para teste ficam em fixtures/.
+/dados-brutos/
+*.xlsx
+*.xls
+!**/fixtures/**
+
+# ─── Editor ─────────────────────────────────────────────────────────
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+*.swp
+*.swo
+
+# ─── Sistema operacional ────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini

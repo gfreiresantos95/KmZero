@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<!-- §3 princípio 4 / §8 item 1: zoom por pinça SEMPRE permitido.
+     Nunca adicionar maximum-scale nem user-scalable=no. Regra de lint. -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KmZero — encontre sua próxima prova</title>
+<meta name="description" content="Encontre provas de rua, trail e circuitos por cidade, data, distância, preço e acessibilidade. E guarde para sempre o registro de tudo que você correu.">
+<meta name="theme-color" content="#062E38" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B1117" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="estilos/tokens.css">
+<link rel="stylesheet" href="estilos/material.css">
+<link rel="stylesheet" href="estilos/pagina.css">
+<script>
+  /* Aplica o tema salvo antes da primeira pintura, para não piscar.
+     Sem JS a página continua correta: o modo escuro cai na
+     preferência do sistema, via @media em tokens.css. */
+  try {
+    var t = localStorage.getItem("kmzero:tema");
+    if (t === "claro" || t === "escuro") document.documentElement.dataset.tema = t;
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<!-- Sprite de ícones: definido uma vez, referenciado com <use>.
+     Um arquivo, zero requisições, funciona sem JavaScript. -->
+<svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></symbol>
+  <symbol id="i-pino" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-percurso" viewBox="0 0 24 24"><path d="M4 20c6 0 2-8 8-8s2-8 8-8"/><circle cx="4" cy="20" r="1.6"/><circle cx="20" cy="4" r="1.6"/></symbol>
+  <symbol id="i-coracao" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.5A4 4 0 0 1 12 8a4 4 0 0 1 7 2.5c0 5.1-7 9.5-7 9.5z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></symbol>
+  <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 9v4M12 16.5v.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-lua" viewBox="0 0 24 24"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3a8.5 8.5 0 1 0 11.5 11.5z"/></symbol>
+  <symbol id="i-filtro" viewBox="0 0 24 24"><path d="M3 5h18M6 12h12M10 19h4"/></symbol>
+  <symbol id="i-trofeu" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 5H5v2a3 3 0 0 0 3 3M16 5h3v2a3 3 0 0 1-3 3M9 20h6M12 13v7"/></symbol>
+  <symbol id="i-etiqueta" viewBox="0 0 24 24"><path d="M12 3H4v8l9 9 8-8-9-9z"/><circle cx="7.5" cy="7.5" r="1.2"/></symbol>
+  <symbol id="i-acessibilidade" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="1.8"/><path d="M5 9h14M12 9v5M12 14l-3 6M12 14l3 6"/></symbol>
+  <symbol id="i-grafico" viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-7M2 20h20"/></symbol>
+</svg>
+
+<a class="pular-para-conteudo" href="#resultados">Pular para a lista de provas</a>
+
+<header class="cabecalho md-app-bar">
+  <div class="cabecalho__interno faixa">
+    <!-- Marca só escrita: "KmZero" é a forma escrita da marca
+         (docs/03 §10). O símbolo gráfico fica para favicon e app. -->
+    <a class="marca md-estado" href="index.html">KmZero</a>
+
+    <nav class="nav" aria-label="Principal">
+      <ul class="nav__lista" role="list">
+        <li><a class="md-botao md-botao--text md-estado nav__item" href="#resultados">Provas</a></li>
+        <li><a class="md-botao md-botao--text md-estado nav__item" href="#resultados">Circuitos</a></li>
+        <li><a class="md-botao md-botao--text md-estado nav__item" href="#organizador">Organizadores</a></li>
+      </ul>
+    </nav>
+
+    <div class="cabecalho__acoes">
+      <button type="button" id="alternar-tema" class="md-icon-botao md-estado" hidden
+              aria-pressed="false">
+        <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-lua"/></svg>
+        <span class="oculto-visual" id="rotulo-tema">Ativar modo escuro</span>
+      </button>
+      <a class="md-botao md-botao--tonal md-estado" href="#conta">Entrar</a>
+    </div>
+  </div>
+</header>
+
+<main id="conteudo">
+
+<!-- ═══ BUSCA — o topo da página é a busca ════════════════════════
+     Um <form method="get"> de verdade: sem JavaScript ele recarrega a
+     página com os filtros na URL (§8 item 17). Com JavaScript, filtra
+     na hora e reescreve a URL, sem recarregar.                      -->
+<section class="busca" aria-labelledby="t-busca">
+  <div class="faixa">
+    <h1 id="t-busca" class="busca__titulo md-display-small">Encontre sua próxima prova.</h1>
+    <p class="busca__linha-fina md-body-large">
+      Filtre por onde você está, quando pode correr, quanto quer pagar e o que
+      a prova precisa ter.
+    </p>
+
+    <form class="filtros" id="filtros" method="get" action="#resultados">
+      <!-- Linha 1: texto livre + as duas perguntas que todo mundo faz -->
+      <div class="filtros__linha filtros__linha--principal">
+        <div>
+          <div class="md-campo md-campo--com-icone">
+            <svg class="icone md-campo__icone" aria-hidden="true" focusable="false"><use href="#i-lupa"/></svg>
+            <input type="search" id="f-texto" name="q" class="md-campo__entrada"
+                   placeholder="Santos, meia maratona, circuito…">
+            <label class="md-campo__rotulo" for="f-texto">Prova, cidade ou organizador</label>
+          </div>
+        </div>
+
+        <div>
+          <div class="md-campo md-campo--select">
+            <select id="f-uf" name="uf" class="md-campo__entrada">
+              <option value="">Todo o Brasil</option>
+              <option value="SP">São Paulo</option>
+              <option value="RJ">Rio de Janeiro</option>
+              <option value="MG">Minas Gerais</option>
+              <option value="PR">Paraná</option>
+              <option value="RS">Rio Grande do Sul</option>
+            </select>
+            <label class="md-campo__rotulo" for="f-uf">Onde</label>
+          </div>
+        </div>
+
+        <div>
+          <div class="md-campo md-campo--select">
+            <select id="f-quando" name="quando" class="md-campo__entrada">
+              <option value="">Qualquer data</option>
+              <option value="7">Nos próximos 7 dias</option>
+              <option value="30">Nos próximos 30 dias</option>
+              <option value="90">Nos próximos 3 meses</option>
+              <option value="365">Neste ano</option>
+              <option value="passadas">Provas que já aconteceram</option>
+            </select>
+            <label class="md-campo__rotulo" for="f-quando">Quando</label>
+          </div>
+        </div>
+
+        <button type="submit" class="md-botao md-botao--filled md-botao--grande md-estado filtros__enviar">
+          <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-lupa"/></svg>
+          Buscar
+        </button>
+      </div>
+
+      <!-- Linha 2: distância e tipo, os dois recortes mais usados -->
+      <div class="filtros__linha">
+        <fieldset class="grupo">
+          <legend class="grupo__legenda md-label-large">Distância</legend>
+          <div class="grupo__opcoes">
+            <label class="md-chip"><input type="checkbox" name="dist" value="kids"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Kids</span></span></label>
+            <label class="md-chip"><input type="checkbox" name="dist" value="caminhada"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Caminhada</span></span></label>
+            <label class="md-chip"><input type="checkbox" name="dist" value="5"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>5 km</span></span></label>
+            <label class="md-chip"><input type="checkbox" name="dist" value="10"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>10 km</span></span></label>
+            <label class="md-chip"><input type="checkbox" name="dist" value="21"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>21 km</span></span></label>
+            <label class="md-chip"><input type="checkbox" name="dist" value="42"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>42 km</span></span></label>
+            <label class="md-chip"><input type="checkbox" name="dist" value="ultra"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Ultra</span></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend class="grupo__legenda md-label-large">Tipo e terreno</legend>
+          <div class="grupo__opcoes">
+            <label class="md-chip"><input type="checkbox" name="tipo" value="circuito"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Circuito</span></span></label>
+            <label class="md-chip"><input type="checkbox" name="tipo" value="avulsa"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Corrida</span></span></label>
+            <label class="md-chip"><input type="checkbox" name="terreno" value="rua"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Rua</span></span></label>
+            <label class="md-chip"><input type="checkbox" name="terreno" value="trail"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Trail</span></span></label>
+            <label class="md-chip"><input type="checkbox" name="terreno" value="pista"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Pista</span></span></label>
+          </div>
+        </fieldset>
+      </div>
+
+      <!-- Linha 3: o resto, dobrado. <details> abre e fecha sem JS. -->
+      <details class="mais-filtros">
+        <summary class="mais-filtros__resumo md-estado">
+          <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-filtro"/></svg>
+          Mais filtros
+          <span class="mais-filtros__contagem" id="contagem-avancados" hidden></span>
+        </summary>
+
+        <div class="mais-filtros__painel">
+          <fieldset class="grupo">
+            <legend class="grupo__legenda md-label-large">Preço</legend>
+            <div class="grupo__opcoes">
+              <label class="md-chip"><input type="checkbox" name="preco" value="gratuito"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Gratuito</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="preco" value="ate60"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Até R$ 60</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="preco" value="60a120"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>R$ 60 a 120</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="preco" value="acima120"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Acima de R$ 120</span></span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="grupo">
+            <legend class="grupo__legenda md-label-large">Situação da inscrição</legend>
+            <div class="grupo__opcoes">
+              <label class="md-chip"><input type="checkbox" name="situacao" value="abertas"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Abertas</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="situacao" value="ultimas"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Últimas inscrições</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="situacao" value="em_breve"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Abrem em breve</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="situacao" value="esgotado"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Esgotadas</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="situacao" value="encerradas"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Encerradas</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="situacao" value="realizado"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Já aconteceram</span></span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="grupo">
+            <legend class="grupo__legenda md-label-large">Dia e horário da largada</legend>
+            <div class="grupo__opcoes">
+              <label class="md-chip"><input type="checkbox" name="dia" value="sabado"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Sábado</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="dia" value="domingo"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Domingo</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="periodo" value="manha"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>De manhã</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="periodo" value="tarde"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>À tarde</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="periodo" value="noite"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>À noite</span></span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="grupo">
+            <legend class="grupo__legenda md-label-large">Acessibilidade</legend>
+            <p class="grupo__nota">Categorias oficiais que a prova aceita.</p>
+            <div class="grupo__opcoes">
+              <label class="md-chip"><input type="checkbox" name="pcd" value="cadeirante"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Cadeirante</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="pcd" value="guia"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Com atleta-guia</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="pcd" value="surdo"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Surdoatleta</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="pcd" value="intelectual"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Deficiência intelectual</span></span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="grupo">
+            <legend class="grupo__legenda md-label-large">A prova tem</legend>
+            <div class="grupo__opcoes">
+              <label class="md-chip"><input type="checkbox" name="recurso" value="chip"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Cronometragem por chip</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="recurso" value="certificado"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Percurso medido</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="recurso" value="kit"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Kit e camiseta</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="recurso" value="equipes"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Classificação por equipe</span></span></label>
+              <label class="md-chip"><input type="checkbox" name="recurso" value="resultado"><span class="md-chip__superficie"><svg class="icone md-chip__check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Resultado no KmZero</span></span></label>
+            </div>
+          </fieldset>
+        </div>
+      </details>
+    </form>
+
+    <!-- O argumento de venda em uma linha, sem roubar a dobra. -->
+    <ul class="beneficios" role="list">
+      <li>
+        <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-etiqueta"/></svg>
+        Preço sempre visível, inclusive quando é grátis
+      </li>
+      <li>
+        <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-acessibilidade"/></svg>
+        Filtro por categorias PCD
+      </li>
+      <li>
+        <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-check"/></svg>
+        No navegador do celular, sem instalar app
+      </li>
+    </ul>
+  </div>
+</section>
+
+  <!-- ═══ RESULTADOS ═════════════════════════════════════════════ -->
+  <section id="resultados" class="secao faixa" aria-labelledby="t-resultados">
+
+    <p class="md-banner md-banner--warning">
+      <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-alerta"/></svg>
+      <span><strong>Demonstração.</strong> Nenhuma prova real foi publicada
+      ainda — as nove abaixo são exemplos para mostrar a busca e os estados
+      de inscrição funcionando.</span>
+    </p>
+
+    <div class="resultados__cabecalho">
+      <h2 id="t-resultados" class="md-title-large">Provas</h2>
+      <p class="resultados__contagem" id="contagem" aria-live="polite">
+        <span class="num" id="contagem-numero">9</span> provas
+      </p>
+    </div>
+
+    <!-- Atalhos e ordenação na mesma linha: quem já sabe o que quer
+         começa por aqui, quem quer reordenar tem o controle ao lado. -->
+    <div class="resultados__topo">
+      <ul class="atalhos" role="list">
+        <li><a class="md-chip-atalho md-estado" href="#resultados" data-atalho="preco=gratuito">Gratuitas</a></li>
+        <li><a class="md-chip-atalho md-estado" href="#resultados" data-atalho="dist=5">Minha primeira prova</a></li>
+        <li><a class="md-chip-atalho md-estado" href="#resultados" data-atalho="tipo=circuito">Circuitos</a></li>
+        <li><a class="md-chip-atalho md-estado" href="#resultados" data-atalho="situacao=ultimas">Últimas inscrições</a></li>
+        <li><a class="md-chip-atalho md-estado" href="#resultados" data-atalho="pcd=cadeirante">Categorias PCD</a></li>
+      </ul>
+
+      <div class="campo--ordenar">
+        <div class="md-campo md-campo--select">
+          <select id="f-ordem" class="md-campo__entrada" form="filtros" name="ordem">
+            <option value="data">Data da prova</option>
+            <option value="fechando">Fecha a inscrição primeiro</option>
+            <option value="preco">Menor preço</option>
+            <option value="nome">Nome</option>
+          </select>
+          <label class="md-campo__rotulo" for="f-ordem">Ordenar por</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ativos" id="ativos" hidden>
+      <h3 class="ativos__titulo md-label-large">Filtros ativos</h3>
+      <ul class="ativos__lista" id="ativos-lista" role="list"></ul>
+      <button type="button" class="md-botao md-botao--text md-estado" id="limpar-filtros">Limpar tudo</button>
+    </div>
+
+    <ul class="eventos" id="eventos" role="list">
+
+      <li class="evento" data-nome="Corrida do Porto" data-uf="SP" data-cidade="Santos"
+          data-data="2026-09-13" data-dia="domingo" data-periodo="manha"
+          data-dist="5 10 caminhada" data-tipo="avulsa" data-terreno="rua"
+          data-preco="0" data-situacao="abertas" data-fecha="2026-09-06"
+          data-pcd="cadeirante guia intelectual" data-recurso="chip certificado resultado">
+        <article class="evento__cartao md-card md-card--elevated">
+          <p class="evento__cartaz" data-variante="1" aria-hidden="true">
+            <span class="evento__selo"><span class="evento__selo-dia num">13</span><span class="evento__selo-mes">set</span></span>
+            <span class="evento__cartaz-dist">10 km</span>
+          </p>
+          <button type="button" class="favorito md-icon-botao md-estado" aria-pressed="false">
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-coracao"/></svg>
+            <span class="oculto-visual">Favoritar Corrida do Porto</span>
+          </button>
+          <div class="evento__corpo">
+            <p class="evento__tipo md-label-small">Corrida · rua</p>
+            <h3 class="evento__nome md-title-medium"><a href="#resultados">Corrida do Porto</a></h3>
+            <ul class="evento__meta" role="list">
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-pino"/></svg>Santos, SP</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-calendario"/></svg><time datetime="2026-09-13">domingo, 13 de setembro</time> · 7h30</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-percurso"/></svg>10 km · 5 km · caminhada</li>
+            </ul>
+            <div class="evento__rodape">
+              <p class="evento__preco">Gratuito</p>
+              <p class="evento__nota">2 latas de leite em pó</p>
+            </div>
+            <p class="estado estado--abertas">
+              <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-check"/></svg>
+              Inscrições abertas
+            </p>
+          </div>
+        </article>
+      </li>
+
+      <li class="evento" data-nome="Circuito Litoral Sul" data-uf="SP" data-cidade="Praia Grande"
+          data-data="2026-09-27" data-dia="domingo" data-periodo="manha"
+          data-dist="5 10" data-tipo="circuito" data-terreno="rua"
+          data-preco="90" data-situacao="ultimas" data-fecha="2026-09-20"
+          data-pcd="cadeirante guia" data-recurso="chip kit equipes resultado">
+        <article class="evento__cartao md-card md-card--elevated">
+          <p class="evento__cartaz" data-variante="2" aria-hidden="true">
+            <span class="evento__selo"><span class="evento__selo-dia num">27</span><span class="evento__selo-mes">set</span></span>
+            <span class="evento__cartaz-dist">5 etapas</span>
+          </p>
+          <button type="button" class="favorito md-icon-botao md-estado" aria-pressed="false">
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-coracao"/></svg>
+            <span class="oculto-visual">Favoritar Circuito Litoral Sul</span>
+          </button>
+          <div class="evento__corpo">
+            <p class="evento__tipo md-label-small">Circuito · 5 etapas</p>
+            <h3 class="evento__nome md-title-medium"><a href="#resultados">Circuito Litoral Sul</a></h3>
+            <ul class="evento__meta" role="list">
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-pino"/></svg>Praia Grande, SP</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-calendario"/></svg><time datetime="2026-09-27">1ª etapa: domingo, 27 de setembro</time></li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-percurso"/></svg>10 km · 5 km</li>
+            </ul>
+            <div class="evento__rodape">
+              <p class="evento__preco">R$ 90</p>
+              <p class="evento__nota">as 5 etapas</p>
+            </div>
+            <p class="estado estado--ultimas">
+              <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-alerta"/></svg>
+              Últimas inscrições
+            </p>
+          </div>
+        </article>
+      </li>
+
+      <li class="evento" data-nome="Meia Maratona da Baixada" data-uf="SP" data-cidade="Santos"
+          data-data="2026-10-11" data-dia="domingo" data-periodo="manha"
+          data-dist="10 21" data-tipo="avulsa" data-terreno="rua"
+          data-preco="120" data-situacao="abertas" data-fecha="2026-10-04"
+          data-pcd="cadeirante guia surdo" data-recurso="chip certificado kit resultado">
+        <article class="evento__cartao md-card md-card--elevated">
+          <p class="evento__cartaz" data-variante="3" aria-hidden="true">
+            <span class="evento__selo"><span class="evento__selo-dia num">11</span><span class="evento__selo-mes">out</span></span>
+            <span class="evento__cartaz-dist">21 km</span>
+          </p>
+          <button type="button" class="favorito md-icon-botao md-estado" aria-pressed="false">
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-coracao"/></svg>
+            <span class="oculto-visual">Favoritar Meia Maratona da Baixada</span>
+          </button>
+          <div class="evento__corpo">
+            <p class="evento__tipo md-label-small">Corrida · rua</p>
+            <h3 class="evento__nome md-title-medium"><a href="#resultados">Meia Maratona da Baixada</a></h3>
+            <ul class="evento__meta" role="list">
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-pino"/></svg>Santos, SP</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-calendario"/></svg><time datetime="2026-10-11">domingo, 11 de outubro</time> · 6h</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-percurso"/></svg>21 km · 10 km</li>
+            </ul>
+            <div class="evento__rodape">
+              <p class="evento__preco">R$ 90 – 120</p>
+              <p class="evento__nota">1º lote</p>
+            </div>
+            <p class="estado estado--abertas">
+              <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-check"/></svg>
+              Inscrições abertas
+            </p>
+          </div>
+        </article>
+      </li>
+
+      <li class="evento" data-nome="Trail da Serra do Mar" data-uf="SP" data-cidade="Cubatão"
+          data-data="2026-10-25" data-dia="domingo" data-periodo="manha"
+          data-dist="21 ultra" data-tipo="avulsa" data-terreno="trail"
+          data-preco="140" data-situacao="em_breve" data-fecha="2026-10-18"
+          data-pcd="" data-recurso="chip kit">
+        <article class="evento__cartao md-card md-card--elevated">
+          <p class="evento__cartaz" data-variante="4" aria-hidden="true">
+            <span class="evento__selo"><span class="evento__selo-dia num">25</span><span class="evento__selo-mes">out</span></span>
+            <span class="evento__cartaz-dist">Trail</span>
+          </p>
+          <button type="button" class="favorito md-icon-botao md-estado" aria-pressed="false">
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-coracao"/></svg>
+            <span class="oculto-visual">Avisar quando abrir: Trail da Serra do Mar</span>
+          </button>
+          <div class="evento__corpo">
+            <p class="evento__tipo md-label-small">Corrida · trail</p>
+            <h3 class="evento__nome md-title-medium"><a href="#resultados">Trail da Serra do Mar</a></h3>
+            <ul class="evento__meta" role="list">
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-pino"/></svg>Cubatão, SP</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-calendario"/></svg><time datetime="2026-10-25">domingo, 25 de outubro</time> · 5h30</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-percurso"/></svg>50 km · 21 km</li>
+            </ul>
+            <div class="evento__rodape">
+              <p class="evento__preco">R$ 140</p>
+              <p class="evento__nota">1º lote</p>
+            </div>
+            <p class="estado estado--em-breve">
+              <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-relogio"/></svg>
+              Inscrições em breve
+            </p>
+          </div>
+        </article>
+      </li>
+
+      <li class="evento" data-nome="Corrida Noturna do Guarujá" data-uf="SP" data-cidade="Guarujá"
+          data-data="2026-11-08" data-dia="sabado" data-periodo="noite"
+          data-dist="5 10" data-tipo="avulsa" data-terreno="rua"
+          data-preco="75" data-situacao="esgotado" data-fecha="2026-11-01"
+          data-pcd="guia surdo" data-recurso="chip kit resultado">
+        <article class="evento__cartao md-card md-card--elevated">
+          <p class="evento__cartaz" data-variante="5" aria-hidden="true">
+            <span class="evento__selo"><span class="evento__selo-dia num">08</span><span class="evento__selo-mes">nov</span></span>
+            <span class="evento__cartaz-dist">Noturna</span>
+          </p>
+          <button type="button" class="favorito md-icon-botao md-estado" aria-pressed="false">
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-coracao"/></svg>
+            <span class="oculto-visual">Avisar se abrir vaga: Corrida Noturna do Guarujá</span>
+          </button>
+          <div class="evento__corpo">
+            <p class="evento__tipo md-label-small">Corrida · rua</p>
+            <h3 class="evento__nome md-title-medium"><a href="#resultados">Corrida Noturna do Guarujá</a></h3>
+            <ul class="evento__meta" role="list">
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-pino"/></svg>Guarujá, SP</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-calendario"/></svg><time datetime="2026-11-08">sábado, 8 de novembro</time> · 19h</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-percurso"/></svg>10 km · 5 km</li>
+            </ul>
+            <div class="evento__rodape">
+              <p class="evento__preco">R$ 75</p>
+              <p class="evento__nota">lote único</p>
+            </div>
+            <p class="estado estado--esgotado">
+              <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>
+              Esgotado
+            </p>
+          </div>
+        </article>
+      </li>
+
+      <li class="evento" data-nome="Corrida Kids do Parque" data-uf="SP" data-cidade="Santos"
+          data-data="2026-09-20" data-dia="domingo" data-periodo="manha"
+          data-dist="kids caminhada" data-tipo="avulsa" data-terreno="rua"
+          data-preco="0" data-situacao="abertas" data-fecha="2026-09-13"
+          data-pcd="cadeirante guia surdo intelectual" data-recurso="kit resultado">
+        <article class="evento__cartao md-card md-card--elevated">
+          <p class="evento__cartaz" data-variante="1" aria-hidden="true">
+            <span class="evento__selo"><span class="evento__selo-dia num">20</span><span class="evento__selo-mes">set</span></span>
+            <span class="evento__cartaz-dist">Kids</span>
+          </p>
+          <button type="button" class="favorito md-icon-botao md-estado" aria-pressed="false">
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-coracao"/></svg>
+            <span class="oculto-visual">Favoritar Corrida Kids do Parque</span>
+          </button>
+          <div class="evento__corpo">
+            <p class="evento__tipo md-label-small">Corrida · rua</p>
+            <h3 class="evento__nome md-title-medium"><a href="#resultados">Corrida Kids do Parque</a></h3>
+            <ul class="evento__meta" role="list">
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-pino"/></svg>Santos, SP</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-calendario"/></svg><time datetime="2026-09-20">domingo, 20 de setembro</time> · 9h</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-percurso"/></svg>Kids 1 km · caminhada 3 km</li>
+            </ul>
+            <div class="evento__rodape">
+              <p class="evento__preco">Gratuito</p>
+              <p class="evento__nota">com acompanhante</p>
+            </div>
+            <p class="estado estado--abertas">
+              <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-check"/></svg>
+              Inscrições abertas
+            </p>
+          </div>
+        </article>
+      </li>
+
+      <li class="evento" data-nome="Maratona da Cantareira" data-uf="SP" data-cidade="São Paulo"
+          data-data="2027-03-14" data-dia="domingo" data-periodo="manha"
+          data-dist="21 42" data-tipo="avulsa" data-terreno="rua"
+          data-preco="210" data-situacao="em_breve" data-fecha="2027-03-07"
+          data-pcd="cadeirante guia" data-recurso="chip certificado kit equipes">
+        <article class="evento__cartao md-card md-card--elevated">
+          <p class="evento__cartaz" data-variante="2" aria-hidden="true">
+            <span class="evento__selo"><span class="evento__selo-dia num">14</span><span class="evento__selo-mes">mar</span></span>
+            <span class="evento__cartaz-dist">42 km</span>
+          </p>
+          <button type="button" class="favorito md-icon-botao md-estado" aria-pressed="false">
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-coracao"/></svg>
+            <span class="oculto-visual">Avisar quando abrir: Maratona da Cantareira</span>
+          </button>
+          <div class="evento__corpo">
+            <p class="evento__tipo md-label-small">Corrida · rua</p>
+            <h3 class="evento__nome md-title-medium"><a href="#resultados">Maratona da Cantareira</a></h3>
+            <ul class="evento__meta" role="list">
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-pino"/></svg>São Paulo, SP</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-calendario"/></svg><time datetime="2027-03-14">domingo, 14 de março de 2027</time> · 6h</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-percurso"/></svg>42 km · 21 km</li>
+            </ul>
+            <div class="evento__rodape">
+              <p class="evento__preco">R$ 180 – 210</p>
+              <p class="evento__nota">1º lote</p>
+            </div>
+            <p class="estado estado--em-breve">
+              <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-relogio"/></svg>
+              Inscrições em breve
+            </p>
+          </div>
+        </article>
+      </li>
+
+      <li class="evento" data-nome="Corrida da Primavera" data-uf="SP" data-cidade="São Vicente"
+          data-data="2026-08-30" data-dia="domingo" data-periodo="manha"
+          data-dist="5 10" data-tipo="avulsa" data-terreno="rua"
+          data-preco="60" data-situacao="encerradas" data-fecha="2026-08-16"
+          data-pcd="guia" data-recurso="chip resultado">
+        <article class="evento__cartao md-card md-card--elevated">
+          <p class="evento__cartaz" data-variante="3" aria-hidden="true">
+            <span class="evento__selo"><span class="evento__selo-dia num">30</span><span class="evento__selo-mes">ago</span></span>
+            <span class="evento__cartaz-dist">10 km</span>
+          </p>
+          <button type="button" class="favorito md-icon-botao md-estado" aria-pressed="false">
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-coracao"/></svg>
+            <span class="oculto-visual">Favoritar Corrida da Primavera</span>
+          </button>
+          <div class="evento__corpo">
+            <p class="evento__tipo md-label-small">Corrida · rua</p>
+            <h3 class="evento__nome md-title-medium"><a href="#resultados">Corrida da Primavera</a></h3>
+            <ul class="evento__meta" role="list">
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-pino"/></svg>São Vicente, SP</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-calendario"/></svg><time datetime="2026-08-30">domingo, 30 de agosto</time> · 8h</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-percurso"/></svg>10 km · 5 km</li>
+            </ul>
+            <div class="evento__rodape">
+              <p class="evento__preco">R$ 60</p>
+              <p class="evento__nota">lote único</p>
+            </div>
+            <p class="estado estado--encerradas">
+              <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-relogio"/></svg>
+              Inscrições encerradas
+            </p>
+          </div>
+        </article>
+      </li>
+
+      <li class="evento" data-nome="Corrida do Trabalhador" data-uf="SP" data-cidade="Santos"
+          data-data="2026-05-01" data-dia="sexta" data-periodo="manha"
+          data-dist="5 10" data-tipo="avulsa" data-terreno="rua"
+          data-preco="0" data-situacao="realizado" data-fecha="2026-04-24"
+          data-pcd="cadeirante guia intelectual" data-recurso="chip resultado">
+        <article class="evento__cartao md-card md-card--elevated">
+          <p class="evento__cartaz" data-variante="4" aria-hidden="true">
+            <span class="evento__selo"><span class="evento__selo-dia num">01</span><span class="evento__selo-mes">mai</span></span>
+            <span class="evento__cartaz-dist">10 km</span>
+          </p>
+          <button type="button" class="favorito md-icon-botao md-estado" aria-pressed="false">
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-coracao"/></svg>
+            <span class="oculto-visual">Favoritar Corrida do Trabalhador</span>
+          </button>
+          <div class="evento__corpo">
+            <p class="evento__tipo md-label-small">Corrida · rua</p>
+            <h3 class="evento__nome md-title-medium"><a href="#resultados">Corrida do Trabalhador</a></h3>
+            <ul class="evento__meta" role="list">
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-pino"/></svg>Santos, SP</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-calendario"/></svg><time datetime="2026-05-01">sexta, 1º de maio</time> · 8h</li>
+              <li><svg class="icone" aria-hidden="true" focusable="false"><use href="#i-percurso"/></svg>10 km · 5 km</li>
+            </ul>
+            <div class="evento__rodape">
+              <p class="evento__preco">Gratuito</p>
+              <p class="evento__nota"></p>
+            </div>
+            <p class="estado estado--realizado">
+              <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-trofeu"/></svg>
+              Resultados no ar
+            </p>
+          </div>
+        </article>
+      </li>
+
+    </ul>
+
+    <!-- Estado vazio da busca (§7.1). -->
+    <div class="vazio" id="sem-resultados" hidden>
+      <p class="md-title-medium">Nenhuma prova com esses filtros.</p>
+      <p class="vazio__texto prosa">
+        Tente tirar um filtro — o mais comum é a data ser curta demais para a
+        região escolhida.
+      </p>
+      <button type="button" class="md-botao md-botao--filled md-estado" id="limpar-vazio">Limpar filtros</button>
+    </div>
+  </section>
+
+  <!-- ═══ O QUE FICA DEPOIS DA PROVA — faixa enxuta ══════════════
+       A tese do produto em três linhas, depois dos resultados: quem
+       chegou para procurar prova já encontrou; quem rolou até aqui
+       quer saber por que este site e não outro.                    -->
+  <section class="secao secao--superficie" aria-labelledby="t-depois">
+    <div class="faixa">
+      <h2 id="t-depois" class="md-title-large">A inscrição é a porta. O que fica é o histórico.</h2>
+      <ul class="depois" role="list">
+        <li>
+          <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-relogio"/></svg>
+          <p><strong>Você não perde a janela</strong>
+          <span>Avisamos quando a confirmação abre e antes de fechar.</span></p>
+        </li>
+        <li>
+          <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-trofeu"/></svg>
+          <p><strong>Seu histórico não se apaga</strong>
+          <span>Tempo, colocação e categoria de tudo que você correu.</span></p>
+        </li>
+        <li>
+          <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-grafico"/></svg>
+          <p><strong>Comparação que faz sentido</strong>
+          <span>Contra a sua categoria e contra você mesmo no ano passado.</span></p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══ CHAMADA DO ORGANIZADOR ════════════════════════════════ -->
+  <section class="secao faixa" aria-labelledby="t-organizador">
+    <div class="organizador" id="organizador">
+      <div>
+        <h2 id="t-organizador" class="md-title-large">Organiza uma prova?</h2>
+        <p class="organizador__texto md-body-medium">
+          Crie sua conta de organizador e veja o que só quem está do outro
+          lado precisa saber.
+        </p>
+        <ul class="organizador__lista" role="list">
+          <li>
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-calendario"/></svg>
+            <span><strong>Calendário completo da sua região</strong> — as provas já marcadas, não só as daqui</span>
+          </li>
+          <li>
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-grafico"/></svg>
+            <span><strong>Mapa de Datas</strong> — quantas provas concorrem no fim de semana que você pensa em marcar</span>
+          </li>
+          <li>
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-etiqueta"/></svg>
+            <span><strong>Publicar e receber inscrição</strong> — lotes, cupons e PIX. Evento gratuito não tem taxa nenhuma</span>
+          </li>
+          <li>
+            <svg class="icone" aria-hidden="true" focusable="false"><use href="#i-trofeu"/></svg>
+            <span><strong>Pontuação de circuito apurada sozinha</strong> — a classificação se recalcula a cada etapa</span>
+          </li>
+        </ul>
+      </div>
+      <p class="organizador__acoes">
+        <a class="md-botao md-botao--filled md-botao--grande md-estado" href="#conta">Criar conta de organizador</a>
+        <a class="md-botao md-botao--outlined md-botao--grande md-estado" href="#conta">Ver como funciona</a>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="rodape" id="conta">
+  <div class="faixa rodape__interno">
+    <div class="rodape__bloco">
+      <p class="rodape__assinatura">KmZero — de onde você partiu.</p>
+      <p class="rodape__texto">Inscrição, resultado e histórico de pedestrianismo.</p>
+    </div>
+
+    <nav class="rodape__bloco" aria-label="Rodapé">
+      <h2 class="rodape__titulo md-label-large">Navegar</h2>
+      <ul role="list">
+        <li><a href="#resultados">Provas</a></li>
+        <li><a href="#organizador">Organizadores</a></li>
+      </ul>
+    </nav>
+
+    <div class="rodape__bloco">
+      <h2 class="rodape__titulo md-label-large">Aviso</h2>
+      <p class="rodape__texto">
+        Página em construção. As nove provas listadas são exemplos de
+        demonstração — nenhuma delas existe.
+      </p>
+      <p class="rodape__texto">
+        O KmZero não é um serviço oficial da Prefeitura de Santos nem de
+        nenhuma federação.
+      </p>
+      <p class="rodape__texto rodape__texto--fraco">
+        A política de privacidade e os termos de uso serão publicados antes de
+        qualquer cadastro.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/tema.js" defer></script>
+<script src="js/filtros.js" defer></script>
+</body>
+</html>

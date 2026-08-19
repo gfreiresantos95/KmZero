@@ -1,0 +1,392 @@
+/* ═══════════════════════════════════════════════════════════════════
+   KmZero — camada de componentes Material 3
+
+   Os padrões do Material Design 3 (app bar, text field com label
+   flutuante, filter chip, state layer, elevação, botões filled/tonal/
+   outlined/text) implementados sobre os tokens do KmZero.
+
+   POR QUE NÃO O @material/web: o pacote oficial exige bundler (só
+   existe na tarefa C2) e carrega Roboto + Material Symbols do Google
+   Fonts, proibido por docs/03 §3.2. Os nomes de token abaixo são os
+   mesmos do M3, então trocar esta folha pelo pacote oficial depois é
+   religar --md-* aos mesmos valores.
+
+   Onde o M3 e o design system do KmZero discordam, o KmZero vence:
+   • altura de alvo: M3 usa 40dp em chip e botão; aqui é 48px (§5.2)
+   • tipografia: Roboto → Inter/system-ui (§3.2)
+   • cor: paleta própria, com contraste medido (§4)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Ponte de tokens: papéis de cor do M3 → tokens do KmZero ────── */
+:root {
+  --md-primary:              var(--cor-primaria-600);
+  --md-on-primary:           var(--cor-texto-invertido);
+  --md-primary-container:    var(--cor-primaria-100);
+  --md-on-primary-container: var(--cor-primaria-700);
+  --md-secondary-container:    var(--cor-primaria-100);
+  --md-on-secondary-container: var(--cor-primaria-700);
+
+  --md-surface:                var(--cor-fundo);
+  --md-surface-container:      var(--cor-superficie);
+  --md-surface-container-high: var(--cor-superficie-2);
+  --md-on-surface:             var(--cor-texto);
+  --md-on-surface-variant:     var(--cor-texto-suave);
+
+  --md-outline:         var(--cor-borda-forte);   /* 3.66:1 — §8 item 4 */
+  --md-outline-variant: var(--cor-borda);
+
+  --md-error:           var(--cor-perigo-700);
+  --md-error-container: var(--cor-perigo-100);
+  --md-success:           var(--cor-sucesso-700);
+  --md-success-container: var(--cor-sucesso-100);
+  --md-warning:           var(--cor-alerta-700);
+  --md-warning-container: var(--cor-alerta-100);
+
+  /* Elevação — o M3 tem 6 níveis; o KmZero usa 3 (§5.4). */
+  --md-elev-0: none;
+  --md-elev-1: var(--sombra-1);
+  --md-elev-2: var(--sombra-2);
+  --md-elev-3: var(--sombra-3);
+
+  /* Escala de forma do M3 → raios do KmZero. */
+  --md-shape-xs:   var(--raio-sm);
+  --md-shape-sm:   var(--raio-md);
+  --md-shape-md:   var(--raio-lg);
+  --md-shape-lg:   var(--raio-xl);
+  --md-shape-full: var(--raio-full);
+
+  /* Opacidades da state layer, direto da especificação do M3. */
+  --md-state-hover:   0.08;
+  --md-state-focus:   0.12;
+  --md-state-pressed: 0.12;
+}
+
+/* ─── State layer ───────────────────────────────────────────────────
+   O véu de currentColor que o M3 põe sobre o componente em hover, foco
+   e pressionado. Fica atrás do conteúdo e acima do fundo.            */
+.md-estado {
+  position: relative;
+  isolation: isolate;
+}
+.md-estado::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: currentColor;
+  opacity: 0;
+  border-radius: inherit;
+  transition: opacity var(--motion-rapido) var(--motion-curva);
+  pointer-events: none;
+}
+.md-estado:hover::before        { opacity: var(--md-state-hover); }
+.md-estado:focus-visible::before { opacity: var(--md-state-focus); }
+.md-estado:active::before        { opacity: var(--md-state-pressed); }
+
+/* ═══ TIPOGRAFIA — papéis do M3 sobre a escala do KmZero ═════════ */
+.md-display-small  { font-size: var(--txt-3xl); font-weight: var(--peso-forte); line-height: var(--lh-apertado); letter-spacing: -0.02em; }
+.md-headline-small { font-size: var(--txt-2xl); font-weight: var(--peso-forte); line-height: var(--lh-titulo); letter-spacing: -0.01em; }
+.md-title-large    { font-size: var(--txt-xl);  font-weight: var(--peso-semi);  line-height: var(--lh-titulo); }
+.md-title-medium   { font-size: var(--txt-lg);  font-weight: var(--peso-semi);  line-height: var(--lh-subtitulo); }
+.md-body-large     { font-size: var(--txt-base); line-height: var(--lh-corpo); }
+.md-body-medium    { font-size: var(--txt-xs);   line-height: var(--lh-corpo); }
+.md-label-large    { font-size: var(--txt-2xs); font-weight: var(--peso-semi); line-height: var(--lh-subtitulo); }
+.md-label-small    { font-size: var(--txt-2xs); font-weight: var(--peso-medio); line-height: var(--lh-subtitulo); }
+
+/* ═══ BOTÕES ════════════════════════════════════════════════════
+   M3: filled, tonal, outlined, text e icon. Altura de 48px, não os
+   40dp da especificação — §5.2 manda.                              */
+.md-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-2);
+  min-block-size: var(--alvo-min);
+  padding-inline: var(--esp-6);
+  border: none;
+  border-radius: var(--md-shape-full);
+  font-family: inherit;
+  font-size: var(--txt-2xs);
+  font-weight: var(--peso-semi);
+  line-height: var(--lh-subtitulo);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: box-shadow var(--motion-rapido) var(--motion-curva);
+}
+.md-botao--grande {
+  min-block-size: var(--alvo-botao);
+  padding-inline: var(--esp-8);
+  font-size: var(--txt-xs);
+}
+
+.md-botao--filled {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+}
+.md-botao--filled:hover { box-shadow: var(--md-elev-1); }
+
+.md-botao--tonal {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+}
+
+.md-botao--outlined {
+  background: transparent;
+  color: var(--md-on-primary-container);
+  box-shadow: inset 0 0 0 1px var(--md-outline);
+}
+
+.md-botao--text {
+  background: transparent;
+  color: var(--md-on-primary-container);
+  padding-inline: var(--esp-4);
+}
+
+/* Botão de ícone: 48×48, redondo, sem rótulo visível — o nome
+   acessível vem de um <span> fora da tela. */
+.md-icon-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--alvo-min);
+  block-size: var(--alvo-min);
+  padding: 0;
+  background: transparent;
+  color: var(--md-on-surface-variant);
+  border: none;
+  border-radius: var(--md-shape-full);
+  cursor: pointer;
+}
+
+/* ═══ CAMPOS — filled text field ═════════════════════════════════
+   Label flutuante do M3: em cima quando há conteúdo ou foco, no meio
+   quando o campo está vazio. Continua sendo <label> de verdade,
+   sempre visível — §8 item 12 proíbe rótulo só no placeholder.     */
+.md-campo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-block-size: var(--alvo-botao);
+  padding-inline: var(--esp-4);
+  background: var(--md-surface-container);
+  border-radius: var(--md-shape-sm) var(--md-shape-sm) 0 0;
+  /* Indicador de ativação: a linha de baixo do M3. Espessa o
+     suficiente para valer como contorno de componente (1.4.11). */
+  box-shadow: inset 0 -2px 0 0 var(--md-outline);
+  transition: box-shadow var(--motion-rapido) var(--motion-curva);
+}
+.md-campo:focus-within {
+  box-shadow: inset 0 -3px 0 0 var(--md-primary);
+}
+
+.md-campo__icone {
+  color: var(--md-on-surface-variant);
+  flex: none;
+}
+
+.md-campo__entrada {
+  inline-size: 100%;
+  min-inline-size: 0;
+  padding: var(--esp-6) 0 var(--esp-2);
+  background: transparent;
+  color: var(--md-on-surface);
+  border: none;
+  font-family: inherit;
+  font-size: var(--txt-xs);
+  line-height: var(--lh-subtitulo);
+}
+.md-campo__entrada:focus { outline: none; }   /* o foco vira a linha + o anel abaixo */
+.md-campo:focus-within {
+  outline: var(--foco-largura) solid var(--cor-foco);
+  outline-offset: var(--foco-offset);
+}
+.md-campo__entrada::placeholder { color: transparent; }
+.md-campo:focus-within .md-campo__entrada::placeholder { color: var(--cor-texto-fraco); }
+
+.md-campo__rotulo {
+  position: absolute;
+  inset-inline-start: var(--esp-4);
+  inset-block-start: var(--esp-2);
+  color: var(--md-on-surface-variant);
+  font-size: var(--txt-3xs);
+  font-weight: var(--peso-medio);
+  line-height: 1.2;
+  pointer-events: none;
+  transition: inset-block-start var(--motion-rapido) var(--motion-curva),
+              font-size var(--motion-rapido) var(--motion-curva);
+}
+/* Com ícone à esquerda, o rótulo acompanha. */
+.md-campo--com-icone .md-campo__rotulo { inset-inline-start: calc(var(--esp-4) + 1.4rem + var(--esp-3)); }
+
+/* Vazio e sem foco: o rótulo desce e vira o texto do campo. */
+.md-campo__entrada:placeholder-shown:not(:focus) ~ .md-campo__rotulo {
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  font-size: var(--txt-xs);
+  font-weight: var(--peso-normal);
+}
+
+/* Select: o rótulo fica sempre em cima, porque sempre há um valor. */
+.md-campo--select .md-campo__entrada {
+  appearance: none;
+  cursor: pointer;
+  padding-inline-end: var(--esp-6);
+}
+.md-campo--select::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: var(--esp-4);
+  inset-block-start: 55%;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-inline-end: 2px solid var(--md-on-surface-variant);
+  border-block-end: 2px solid var(--md-on-surface-variant);
+  transform: translateY(-50%) rotate(45deg);
+  pointer-events: none;
+}
+
+.md-campo__suporte {
+  margin-block-start: var(--esp-1);
+  padding-inline: var(--esp-4);
+  color: var(--md-on-surface-variant);
+  font-size: var(--txt-3xs);
+}
+
+/* ═══ CHIPS ═════════════════════════════════════════════════════ */
+
+/* Filter chip: o checkbox real continua sendo o alvo de clique e de
+   foco; o <span> é a aparência. Selecionado ganha o check do M3 —
+   cor nunca é o único portador (§4.6 regra 1). */
+.md-chip {
+  position: relative;
+  display: inline-flex;
+}
+.md-chip input {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.md-chip__superficie {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-block-size: var(--alvo-min);
+  padding-inline: var(--esp-4);
+  background: var(--md-surface);
+  color: var(--md-on-surface-variant);
+  border-radius: var(--md-shape-xs);
+  box-shadow: inset 0 0 0 1px var(--md-outline);
+  font-size: var(--txt-2xs);
+  font-weight: var(--peso-medio);
+  transition: background-color var(--motion-rapido) var(--motion-curva);
+}
+.md-chip:hover .md-chip__superficie {
+  background: color-mix(in srgb, var(--md-on-surface) 8%, var(--md-surface));
+}
+.md-chip input:checked + .md-chip__superficie {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  box-shadow: none;
+  font-weight: var(--peso-semi);
+}
+.md-chip input:focus-visible + .md-chip__superficie {
+  outline: var(--foco-largura) solid var(--cor-foco);
+  outline-offset: var(--foco-offset);
+}
+.md-chip .md-chip__check {
+  inline-size: 0;
+  block-size: 1.1rem;
+  opacity: 0;
+  transition: inline-size var(--motion-rapido) var(--motion-curva),
+              opacity var(--motion-rapido) var(--motion-curva);
+}
+.md-chip input:checked + .md-chip__superficie .md-chip__check {
+  inline-size: 1.1rem;
+  opacity: 1;
+}
+
+/* Input chip: o chip removível dos filtros ativos. */
+.md-chip-removivel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-block-size: var(--alvo-min);
+  padding-inline: var(--esp-4);
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  border: none;
+  border-radius: var(--md-shape-xs);
+  font-family: inherit;
+  font-size: var(--txt-2xs);
+  font-weight: var(--peso-semi);
+  cursor: pointer;
+}
+.md-chip-removivel .icone { inline-size: 1.1rem; block-size: 1.1rem; }
+
+/* Assist chip: os atalhos de busca. */
+.md-chip-atalho {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-block-size: var(--alvo-min);
+  padding-inline: var(--esp-4);
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  border-radius: var(--md-shape-xs);
+  box-shadow: inset 0 0 0 1px var(--md-outline);
+  font-size: var(--txt-2xs);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+}
+
+/* ═══ CARTÕES ═══════════════════════════════════════════════════ */
+.md-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--md-shape-md);
+  background: var(--md-surface);
+  overflow: hidden;
+}
+.md-card--elevated {
+  box-shadow: var(--md-elev-1);
+  transition: box-shadow var(--motion-padrao) var(--motion-curva);
+}
+.md-card--elevated:hover { box-shadow: var(--md-elev-2); }
+.md-card--outlined { box-shadow: inset 0 0 0 1px var(--md-outline-variant); }
+.md-card--filled   { background: var(--md-surface-container); }
+
+/* ═══ APP BAR ═══════════════════════════════════════════════════ */
+.md-app-bar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 5;
+  background: var(--md-surface);
+  border-block-end: 1px solid var(--md-outline-variant);
+}
+
+/* ═══ BANNER ════════════════════════════════════════════════════ */
+.md-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-3);
+  padding: var(--esp-4);
+  border-radius: var(--md-shape-sm);
+  font-size: var(--txt-2xs);
+}
+.md-banner--warning { background: var(--md-warning-container); color: var(--md-warning); }
+
+/* ═══ DIVISOR ═══════════════════════════════════════════════════ */
+.md-divisor {
+  block-size: 1px;
+  border: none;
+  margin: 0;
+  background: var(--md-outline-variant);
+}

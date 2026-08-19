@@ -1,0 +1,369 @@
+/* ═══════════════════════════════════════════════════════════════════
+   KmZero — Design Tokens
+   Fonte única de verdade. Nenhum hex deve existir fora deste arquivo.
+   Documentação e contrastes medidos: ../03-design-system.md
+
+   Todo par cor/fundo abaixo tem contraste WCAG 2.2 calculado e anotado.
+   Ao alterar qualquer cor, RECALCULE e atualize o comentário e a §4 do doc.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ─── TIPOGRAFIA ───────────────────────────────────────────────
+     Base 18px (não 16): público com categorias oficiais até 80+.
+     A leitura precisa ser confortável ANTES de qualquer recurso
+     de acessibilidade. Escala modular razão 1.2 (terça menor).      */
+
+  --fonte-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fonte-num: "Inter", system-ui, sans-serif;
+
+  --txt-base-px: 18px;
+
+  --txt-3xs:  0.694rem;  /* 12.5px — SÓ rótulo de eixo de gráfico   */
+  --txt-2xs:  0.833rem;  /* 15.0px — metadado, legenda              */
+  --txt-xs:   0.900rem;  /* 16.2px — texto secundário               */
+  --txt-base: 1.000rem;  /* 18.0px — CORPO DE TEXTO. O padrão.      */
+  --txt-lg:   1.200rem;  /* 21.6px — subtítulo                      */
+  --txt-xl:   1.440rem;  /* 25.9px — título de seção                */
+  --txt-2xl:  1.728rem;  /* 31.1px — título de página               */
+  --txt-3xl:  2.074rem;  /* 37.3px — número-herói                   */
+  --txt-4xl:  2.488rem;  /* 44.8px — contador regressivo da janela  */
+
+  --peso-normal:  400;   /* mínimo permitido — nada de 300          */
+  --peso-medio:   500;
+  --peso-semi:    600;
+  --peso-forte:   700;
+  --peso-extra:   800;
+
+  --lh-apertado:  1.1;
+  --lh-titulo:    1.25;
+  --lh-subtitulo: 1.4;
+  --lh-corpo:     1.6;
+
+  --medida-leitura: 66ch;
+  --largura-conteudo: 68rem;
+
+  /* ─── ESPAÇAMENTO — grade de 4px ────────────────────────────── */
+  --esp-1:   0.25rem;   /*  4px */
+  --esp-2:   0.5rem;    /*  8px */
+  --esp-3:   0.75rem;   /* 12px */
+  --esp-4:   1rem;      /* 16px */
+  --esp-5:   1.25rem;   /* 20px */
+  --esp-6:   1.5rem;    /* 24px */
+  --esp-8:   2rem;      /* 32px */
+  --esp-12:  3rem;      /* 48px */
+  --esp-16:  4rem;      /* 64px */
+
+  /* ─── ALVO DE TOQUE ─────────────────────────────────────────────
+     WCAG 2.2 AA exige 24px (2.5.8). Usamos 48px — o dobro.
+     Justificativa: tremor, artrite, uso em movimento na rua.       */
+  --alvo-min:        48px;  /* botão de ícone, item de lista        */
+  --alvo-botao:      56px;  /* botão primário                       */
+  --alvo-critico:    96px;  /* ConfirmacaoCard — a ação do produto  */
+  --alvo-separacao:   8px;  /* espaço mínimo entre alvos adjacentes */
+
+  /* ─── RAIO ──────────────────────────────────────────────────── */
+  --raio-sm:   6px;
+  --raio-md:  10px;
+  --raio-lg:  16px;
+  --raio-xl:  24px;
+  --raio-full: 9999px;
+
+  /* ─── MOVIMENTO ─────────────────────────────────────────────── */
+  --motion-rapido:  120ms;
+  --motion-padrao:  200ms;
+  --motion-lento:   320ms;
+  --motion-curva:   cubic-bezier(0.2, 0, 0.2, 1);
+
+  /* ─── BREAKPOINTS (em em, para respeitar o zoom do usuário) ─── */
+  --bp-sm: 30em;   /* 480px */
+  --bp-md: 48em;   /* 768px */
+  --bp-lg: 64em;   /* 1024px */
+  --bp-xl: 80em;   /* 1280px */
+
+  /* ═══ MODO CLARO — padrão ═════════════════════════════════════ */
+
+  /* Superfícies */
+  --cor-fundo:       #FFFFFF;
+  --cor-superficie:  #F4F7F9;
+  --cor-superficie-2:#E9EEF2;
+
+  /* Texto — contraste sobre --cor-fundo */
+  --cor-texto:        #111820;  /* 17.87:1 AAA  (16.61:1 em superfície) */
+  --cor-texto-suave:  #4B5763;  /*  7.39:1 AAA  ( 6.87:1 em superfície) */
+  --cor-texto-fraco:  #68737F;  /*  4.83:1 AA   — metadado, timestamp   */
+  --cor-texto-invertido: #FFFFFF;
+
+  /* Primária "Maré" — teal profundo. Litoral + credibilidade.     */
+  --cor-primaria-900: #062E38;
+  --cor-primaria-700: #0A4E5C;  /*  9.30:1 AAA — link, texto de marca   */
+  --cor-primaria-600: #0C6070;  /*  7.19:1 AAA — fundo de botão primário
+                                   (branco sobre ele: 7.19:1 AAA)      */
+  --cor-primaria-500: #0E7A8C;  /*  5.02:1 AA  — ícone, borda ativa     */
+  --cor-primaria-100: #D6EEF3;  /* chip: texto 700 sobre ele = 7.70:1   */
+  --cor-primaria-50:  #EEF8FA;
+
+  /* Acento "Largada" — laranja queimado.
+     SAGRADO: só ação crítica e urgência. Nunca decoração geral.    */
+  --cor-acento-700: #9A3E00;  /*  6.86:1 AA — texto de urgência         */
+  --cor-acento-600: #B84A00;  /*  5.23:1 AA — fundo de botão crítico
+                                 (branco sobre ele: 5.23:1 AA)          */
+  --cor-acento-500: #E05E00;  /*  3.64:1 — SÓ decoração e texto ≥24px.
+                                 PROIBIDO em corpo de texto.            */
+  --cor-acento-100: #FFE7D6;  /* chip: texto 700 sobre ele = 5.76:1     */
+
+  /* Semânticas */
+  --cor-sucesso-700: #0E6B3A;  /* 6.60:1 AA  (branco sobre: 6.60:1)     */
+  --cor-sucesso-100: #D6F2E1;  /* chip = 5.54:1                         */
+  --cor-alerta-700:  #8A5200;  /* 6.39:1 AA  (branco sobre: 6.39:1)     */
+  --cor-alerta-100:  #FBEDD0;  /* chip = 5.51:1                         */
+  --cor-perigo-700:  #A81E14;  /* 7.34:1 AAA (branco sobre: 7.34:1)     */
+  --cor-perigo-100:  #FBE0DE;  /* chip = 5.88:1                         */
+
+  /* Favoritar — o coração do "amei". Fora das semânticas de status de
+     propósito: favoritar não é sucesso, alerta nem erro.
+     #C2185B sobre fundo = 5.87:1 AA · sobre superfície = 5.46:1 AA     */
+  --cor-favorito:    #C2185B;
+
+  /* Bordas */
+  --cor-borda:       #DDE3E9;  /* 1.31:1 — DECORATIVA. Divisória sem
+                                  função semântica.                     */
+  --cor-borda-forte: #7B8794;  /* 3.66:1 — WCAG 1.4.11. Obrigatória em
+                                  campo, checkbox, contorno de componente */
+
+  /* Foco — nunca remover sem substituto */
+  --cor-foco:        #0C6070;  /* 7.19:1 sobre fundo, 6.68:1 sobre superfície */
+  --foco-largura:    3px;
+  --foco-offset:     2px;
+
+  /* Elevação — três níveis, sombra com base do teal (não preto puro) */
+  --sombra-1: 0 1px 2px rgba(6, 46, 56, 0.06),
+              0 1px 3px rgba(6, 46, 56, 0.10);
+  --sombra-2: 0 4px 8px rgba(6, 46, 56, 0.08),
+              0 2px 4px rgba(6, 46, 56, 0.06);
+  --sombra-3: 0 12px 24px rgba(6, 46, 56, 0.12),
+              0 4px 8px rgba(6, 46, 56, 0.08);
+
+  /* ─── PALETA DE DADOS — categórica ──────────────────────────────
+     4 SLOTS. NÃO existe uma 5ª. Validada com o validador de CVD em
+     TODOS os pares (não só adjacentes), nas duas superfícies:
+       Banda L .......... PASS (todas em 0.43–0.77)
+       Piso de croma .... PASS (todas >= 0.1)
+       Separação CVD .... PASS (pior par 8.5 deutan / 9.3 tritan)
+       Visão normal ..... PASS (pior par 18.4)
+       Contraste ........ PASS (todas >= 3:1)
+     Uma 5ª cor derruba a separação para daltônicos. Precisa de mais
+     séries? Vire small multiples ou agregue em "Outros".
+     Ordem FIXA — nunca ciclar, nunca reatribuir por ranking.        */
+  --dado-1: #0098B5;  /* VOCÊ — sempre o slot 1                     */
+  --dado-2: #E06A00;  /* comparação principal / rival               */
+  --dado-3: #C43A7E;  /* mediana da categoria                       */
+  --dado-4: #5B5BD6;  /* quarta série                               */
+
+  /* ─── RAMPA SEQUENCIAL — magnitude ──────────────────────────────
+     Mapa de Datas (densidade de provas por dia), heatmap de
+     participação. Uma única matiz, L monotônica.
+       Monotonicidade .. PASS   Gaps de L ...... PASS
+       Extremo claro ... PASS (2.09:1 vs #FFFFFF)
+       Matiz única ..... PASS (dispersão 4°)                        */
+  --densidade-1: #66C0D3;  /* menor */
+  --densidade-2: #39A3BC;
+  --densidade-3: #17859C;
+  --densidade-4: #0A6577;
+  --densidade-5: #064854;  /* maior */
+  --densidade-0: #E9EEF2;  /* zero — neutro, nunca a matiz          */
+}
+
+/* ═══ MODO ESCURO ═══════════════════════════════════════════════
+   Não é inversão. Fundos dessaturados e cores de marca clareadas —
+   cor saturada sobre preto vibra e cansa.
+   Definido em @media (preferência do sistema) E em [data-tema]
+   (escolha explícita), para que o seletor manual vença nos dois
+   sentidos.                                                        */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --cor-fundo:        #0B1117;
+    --cor-superficie:   #141C24;
+    --cor-superficie-2: #1D2731;
+
+    --cor-texto:        #E8EDF2;  /* 16.11:1 AAA (14.60:1 em superfície) */
+    --cor-texto-suave:  #A3B0BC;  /*  8.58:1 AAA ( 7.77:1 em superfície) */
+    --cor-texto-fraco:  #7E8B98;  /*  5.45:1 AA                          */
+    --cor-texto-invertido: #0B1117;
+
+    --cor-primaria-900: #C7EAF1;
+    --cor-primaria-700: #8ADBE8;
+    --cor-primaria-600: #5BC5D8;  /* 9.42:1 AAA (8.53:1 em superfície)
+                                     texto escuro sobre ele: 9.42:1 AAA  */
+    --cor-primaria-500: #5BC5D8;
+    --cor-primaria-100: #12333C;
+    --cor-primaria-50:  #0E262D;
+
+    --cor-acento-700: #FFBE93;
+    --cor-acento-600: #FF9E5C;    /* 9.30:1 AAA (8.43:1 em superfície)
+                                     texto escuro sobre ele: 9.30:1 AAA  */
+    --cor-acento-500: #FF9E5C;
+    --cor-acento-100: #3A1D0A;
+
+    --cor-sucesso-700: #4ED07E;   /* 9.62:1 AAA */
+    --cor-sucesso-100: #0F2E1D;
+    --cor-alerta-700:  #F2B33D;   /* 10.20:1 AAA */
+    --cor-alerta-100:  #33260A;
+    --cor-perigo-700:  #FF8A80;   /* 8.31:1 AAA */
+    --cor-perigo-100:  #3A1512;
+
+    /* Favoritar — 8.87:1 sobre fundo, 8.04:1 sobre superfície (AAA) */
+    --cor-favorito:    #FF8FB1;
+
+    --cor-borda:       #232D37;   /* 1.42:1 — decorativa               */
+    --cor-borda-forte: #5C6975;   /* 3.37:1 — WCAG 1.4.11              */
+
+    --cor-foco:        #5BC5D8;   /* 9.42:1 sobre fundo, 8.53:1 sobre superfície */
+
+    --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.40), 0 1px 3px rgba(0, 0, 0, 0.30);
+    --sombra-2: 0 4px 8px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.30);
+    --sombra-3: 0 12px 24px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.35);
+
+    /* Paleta de dados — steps próprios do modo escuro, NÃO um flip.
+       A banda de L do escuro é 0.48–0.67 (mais escura que a do claro):
+       marca clara demais sobre fundo escuro vibra e some.
+         Banda L ....... PASS   Croma ..... PASS
+         CVD ........... PASS (pior par 9.4 deutan)
+         Visão normal .. PASS (15.8)   Contraste .. PASS            */
+    --dado-1: #1E9DB6;  /* VOCÊ                                      */
+    --dado-2: #DC7020;
+    --dado-3: #D6427A;
+    --dado-4: #7570E0;
+
+    /* Rampa sequencial escura — extremo claro a 2.19:1 vs superfície */
+    --densidade-1: #1E5966;
+    --densidade-2: #217A8D;
+    --densidade-3: #249BB3;
+    --densidade-4: #4FBDD1;
+    --densidade-5: #8ADAE6;
+    --densidade-0: #1D2731;
+  }
+}
+
+:root[data-tema="escuro"] {
+  --cor-fundo:        #0B1117;
+  --cor-superficie:   #141C24;
+  --cor-superficie-2: #1D2731;
+
+  --cor-texto:        #E8EDF2;
+  --cor-texto-suave:  #A3B0BC;
+  --cor-texto-fraco:  #7E8B98;
+  --cor-texto-invertido: #0B1117;
+
+  --cor-primaria-900: #C7EAF1;
+  --cor-primaria-700: #8ADBE8;
+  --cor-primaria-600: #5BC5D8;
+  --cor-primaria-500: #5BC5D8;
+  --cor-primaria-100: #12333C;
+  --cor-primaria-50:  #0E262D;
+
+  --cor-acento-700: #FFBE93;
+  --cor-acento-600: #FF9E5C;
+  --cor-acento-500: #FF9E5C;
+  --cor-acento-100: #3A1D0A;
+
+  --cor-sucesso-700: #4ED07E;
+  --cor-sucesso-100: #0F2E1D;
+  --cor-alerta-700:  #F2B33D;
+  --cor-alerta-100:  #33260A;
+  --cor-perigo-700:  #FF8A80;
+  --cor-perigo-100:  #3A1512;
+
+  /* Favoritar — 8.87:1 sobre fundo, 8.04:1 sobre superfície (AAA) */
+  --cor-favorito:    #FF8FB1;
+
+  --cor-borda:       #232D37;
+  --cor-borda-forte: #5C6975;
+  --cor-foco:        #5BC5D8;
+
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.40), 0 1px 3px rgba(0, 0, 0, 0.30);
+  --sombra-2: 0 4px 8px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.30);
+  --sombra-3: 0 12px 24px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.35);
+
+  --dado-1: #1E9DB6;
+  --dado-2: #DC7020;
+  --dado-3: #D6427A;
+  --dado-4: #7570E0;
+
+  --densidade-1: #1E5966;
+  --densidade-2: #217A8D;
+  --densidade-3: #249BB3;
+  --densidade-4: #4FBDD1;
+  --densidade-5: #8ADAE6;
+  --densidade-0: #1D2731;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BASE — o mínimo que precisa existir junto dos tokens
+   ═══════════════════════════════════════════════════════════════ */
+
+html {
+  font-size: var(--txt-base-px);   /* 18px, não 16 */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--cor-fundo);    /* explícito: o host pinta atrás */
+  color: var(--cor-texto);
+  font-family: var(--fonte-ui);
+  font-size: var(--txt-base);
+  line-height: var(--lh-corpo);
+  font-weight: var(--peso-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Foco visível SEMPRE. `outline: none` sem substituto é bug de
+   acessibilidade, não escolha de design. */
+:focus-visible {
+  outline: var(--foco-largura) solid var(--cor-foco);
+  outline-offset: var(--foco-offset);
+  border-radius: var(--raio-sm);
+}
+
+/* Números tabulares em tudo que é dado — tempos e posições não
+   podem dançar entre as linhas da classificação. */
+.num,
+table td,
+time,
+[data-numerico] {
+  font-family: var(--fonte-num);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Medida de leitura */
+.prosa { max-inline-size: var(--medida-leitura); }
+
+/* Todo alvo interativo respeita o mínimo de 48px */
+button,
+[role="button"],
+a.botao,
+input[type="checkbox"],
+input[type="radio"] {
+  min-block-size: var(--alvo-min);
+  min-inline-size: var(--alvo-min);
+}
+
+/* Conteúdo largo rola dentro do próprio contêiner — o body nunca
+   rola horizontalmente. */
+.rolagem-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
